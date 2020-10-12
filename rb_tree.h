@@ -14,6 +14,12 @@ public:
     
     Node* GetParent(Node* head, int key);
 
+    void RotateLeft(Node* head);
+
+    void RotateRight(Node* head);
+
+    int KMin(Node* head, int k);
+
     RedBlackTree();
     ~RedBlackTree();
 };

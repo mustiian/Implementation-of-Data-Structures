@@ -1,7 +1,7 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
-enum Color { NONE, BLACK, RED };
+enum Color { BLACK, RED };
 
 class Node
 {
@@ -22,7 +22,6 @@ Node::Node(int key, Node* parent)
     this->parent = parent;
     this->left = nullptr;
     this->right = nullptr;
-    this->color = NONE;
 }
 
 Node::~Node()

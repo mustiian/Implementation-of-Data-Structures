@@ -1,3 +1,6 @@
+#ifndef __RB_TREE_TEST_H__
+#define __RB_TREE_TEST_H__
+
 #include "rb_tree.h"
 #include<iostream>
 #include <string>
@@ -8,21 +11,32 @@ using namespace std;
 
 void printError(const string& error){
     cerr << "Test error: " << error << endl;
+    exit(1);
 }
 
 class RedBlackTreeTester
 {
 private:
-    /* data */
+    
 public:
-    RedBlackTreeTester(/* args */);
+    TestRedNodes(Node* head);
+    TestHeadNode(Node* head);
+    TestLeavesNodes(Node* head);
+    TestPathFromHeadToLeaves(Node* head);
+
+    TestIntegrity(Node* node);
+
+    RedBlackTreeTester();
     ~RedBlackTreeTester();
 };
 
-RedBlackTreeTester::RedBlackTreeTester(/* args */)
+RedBlackTreeTester::RedBlackTreeTester()
 {
 }
 
 RedBlackTreeTester::~RedBlackTreeTester()
 {
 }
+
+
+#endif // __RB_TREE_TEST_H__
