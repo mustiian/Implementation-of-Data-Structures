@@ -20,34 +20,86 @@ private:
     
 public:
     void TestRedNode(Node* node);
-    void TestLeafNode(Node* node);
-    void TestPathFromHeadToLeaf(Node* head);
+    int TestPathFromHeadToLeaf(Node* head, int depth);
 
-    void TestIntegrity(Node* node);
+    void TestIntegrity(Node* node, int min, int max);
 
     RedBlackTreeTester();
     ~RedBlackTreeTester();
 };
-
+/**
+ * Test red node. Its parent is not red and the children are black.
+ * 
+ * @param  {Node*} node : Tested node
+ */
 void RedBlackTreeTester::TestRedNode(Node* node) 
 {
-    string err_message = to_string(node->key) + " node is not red";
-    TEST(node->color == RED, err_message);
+    string err_message = to_string(node->key) + " node: red test failed";
+    TEST(node->color == RED && (!node->left || node->left->color == BLACK), err_message);
+    TEST(node->color == RED && (!node->right || node->right->color == BLACK), err_message);
+    TEST(node->color == RED && (!node->parent || node->parent->color != RED), err_message);
 }
 
-void RedBlackTreeTester::TestLeafNode(Node* node) 
+/**
+ * Test number of black nodes during the path from the head node to leaves nodes.
+ * All paths should have the same number of black nodes.
+ * 
+ * @param  {Node*} head : Head of the tree
+ * @param  {int} depth  : Number of parent's black nodes 
+ * @return {int}        : New number of the black nodes during the path
+ */
+int RedBlackTreeTester::TestPathFromHeadToLeaf(Node* head, int depth) 
 {
+    int leftDepth = 0, rightDepth = 0;
+
+    // If the head is leaf then has same depth as parent
+    if (head == nullptr)
+        return depth;
+
+    // Increase number of black nodes if current node is black
+    if (!head->color == BLACK)
+        depth += 1;
     
+    if (head->left) 
+        leftDepth = TestPathFromHeadToLeaf(head->left, depth);
+    else // If head has no left child then left depth is the same
+        leftDepth = depth;
+
+    if (head->right)
+        rightDepth = TestPathFromHeadToLeaf(head->right, depth);
+    else // If head has no right child then right depth is the same
+        rightDepth = depth;
+            
+    string err_message = to_string(head->key) + "node: depth test failed, left " + 
+                            to_string(leftDepth) + ", right " + to_string(rightDepth);
+
+    TEST (leftDepth == rightDepth, err_message);
+
+    return depth;
 }
 
-void RedBlackTreeTester::TestPathFromHeadToLeaf(Node* head) 
+/**
+ * Test integrity of the node 
+ * 
+ * @param  {Node*} node : Tested node 
+ * @param  {int} min    : Minimum key
+ * @param  {int} max    : Maximum key
+ */
+void RedBlackTreeTester::TestIntegrity(Node* node, int min, int max) 
 {
-    
-}
+    string err_message = to_string(node->key) + "node: integrity test failed";
 
-void RedBlackTreeTester::TestIntegrity(Node* node) 
-{
-    
+    if(!node)
+        return;
+
+    TEST(!node->left || node->left->parent == node, err_message);
+    TEST(!node->right || node->right->parent == node, err_message);
+    TEST(!node->key >= min || node->key <= max, err_message);
+    TEST(!node->right || node->right->key > node->key, err_message);
+
+    TestIntegrity(node->left, min, node->key);
+    TestIntegrity(node->right, node->key, max);
+    TestRedNode(node);
 }
 
 RedBlackTreeTester::RedBlackTreeTester()
