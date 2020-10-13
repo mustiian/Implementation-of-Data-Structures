@@ -61,11 +61,21 @@ Node* RedBlackTree::GetParent(Node* head, int key)
     
 }
 
+/**
+ * Rotate node to the left 
+ * 
+ * @param  {Node*} head : Rotated head node
+ */
 void RedBlackTree::RotateLeft(Node* head) 
 {
     
 }
 
+/**
+ * Rotae node to the right 
+ * 
+ * @param  {Node*} head : Rotated head node
+ */
 void RedBlackTree::RotateRight(Node* head) 
 {
     

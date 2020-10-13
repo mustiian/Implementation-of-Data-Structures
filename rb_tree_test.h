@@ -19,16 +19,36 @@ class RedBlackTreeTester
 private:
     
 public:
-    TestRedNodes(Node* head);
-    TestHeadNode(Node* head);
-    TestLeavesNodes(Node* head);
-    TestPathFromHeadToLeaves(Node* head);
+    void TestRedNode(Node* node);
+    void TestLeafNode(Node* node);
+    void TestPathFromHeadToLeaf(Node* head);
 
-    TestIntegrity(Node* node);
+    void TestIntegrity(Node* node);
 
     RedBlackTreeTester();
     ~RedBlackTreeTester();
 };
+
+void RedBlackTreeTester::TestRedNode(Node* node) 
+{
+    string err_message = to_string(node->key) + " node is not red";
+    TEST(node->color == RED, err_message);
+}
+
+void RedBlackTreeTester::TestLeafNode(Node* node) 
+{
+    
+}
+
+void RedBlackTreeTester::TestPathFromHeadToLeaf(Node* head) 
+{
+    
+}
+
+void RedBlackTreeTester::TestIntegrity(Node* node) 
+{
+    
+}
 
 RedBlackTreeTester::RedBlackTreeTester()
 {

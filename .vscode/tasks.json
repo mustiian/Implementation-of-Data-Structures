@@ -6,9 +6,13 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-g",
-                "${file}",
+                "-std=c++11",
+                "node.h",
+                "rb_tree.h",
+                "rb_tree_test.h",
+                "rb_tree_main.cpp",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "rb_test_debug"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
