@@ -4,6 +4,7 @@
 #include "rb_tree.h"
 #include<iostream>
 #include <string>
+#include <cstdlib>
 
 using namespace std;
 
@@ -19,8 +20,10 @@ class RedBlackTreeTester
 private:
     
 public:
-    void TestRedNode(Node* node);
+    void TestColor(Node* node);
     int TestPathFromHeadToLeaf(Node* head, int depth);
+
+    void TestSequence(int length);
 
     void TestIntegrity(Node* node, int min, int max);
 
@@ -32,11 +35,15 @@ public:
  * 
  * @param  {Node*} node : Tested node
  */
-void RedBlackTreeTester::TestRedNode(Node* node) 
+void RedBlackTreeTester::TestColor(Node* node) 
 {
     string err_message = to_string(node->key) + " node: red test failed";
+    // Test that root is always black
+    TEST(!node->parent && node->color == BLACK, err_message);
+    // Test that red node has only black children
     TEST(node->color == RED && (!node->left || node->left->color == BLACK), err_message);
     TEST(node->color == RED && (!node->right || node->right->color == BLACK), err_message);
+    // Test that red node hasn't red parent 
     TEST(node->color == RED && (!node->parent || node->parent->color != RED), err_message);
 }
 
@@ -79,7 +86,29 @@ int RedBlackTreeTester::TestPathFromHeadToLeaf(Node* head, int depth)
 }
 
 /**
- * Test integrity of the node 
+ * Test Insert, Find, Delete methods for the sequence 
+ * 
+ * @param  {int} length : Length of the tree
+ */
+void RedBlackTreeTester::TestSequence(int length) 
+{
+    Node * head;
+    RedBlackTree tree;
+
+    for (int i = 2; i < length; i+=2)
+        head = tree.Insert(head, i);
+
+    for (int i = 2; i < length; i+=2)
+        TEST(tree.Find(head, i) != nullptr, to_string(i) + "key: sequence find test failed.");
+
+    for (int i = 1; i < length; i+=2)    
+        head = tree.Delete(head, i);
+
+    TEST(!head, "Sequence test failed");
+}
+
+/**
+ * Test integrity of the given node.
  * 
  * @param  {Node*} node : Tested node 
  * @param  {int} min    : Minimum key
@@ -99,7 +128,7 @@ void RedBlackTreeTester::TestIntegrity(Node* node, int min, int max)
 
     TestIntegrity(node->left, min, node->key);
     TestIntegrity(node->right, node->key, max);
-    TestRedNode(node);
+    TestColor(node);
 }
 
 RedBlackTreeTester::RedBlackTreeTester()
