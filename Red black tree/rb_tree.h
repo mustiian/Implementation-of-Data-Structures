@@ -1,5 +1,30 @@
+#ifndef __RB_TREE_H__
+#define __RB_TREE_H__
 
-#include "rb_tree.h"
+#include "node.h"
+
+class RedBlackTree
+{
+public: 
+    RedBlackTree();
+    ~RedBlackTree();
+
+    Node* Insert(int key);
+
+    Node* Delete(int key);
+
+    Node* Find(int key);
+    
+    int KMin(int k);
+
+private:
+    void RotateLeft(Node* head);
+
+    void RotateRight(Node* head);
+
+    Node* head;
+};
+
 
 RedBlackTree::RedBlackTree()
 {
@@ -16,7 +41,7 @@ RedBlackTree::~RedBlackTree()
  * @param  {int} key    : Desired key number  
  * @return {Node*}      : New node head of the tree
  */
-Node* RedBlackTree::Insert(Node *head, int key)
+Node* RedBlackTree::Insert(int key)
 {
     return nullptr;
 }
@@ -29,7 +54,7 @@ Node* RedBlackTree::Insert(Node *head, int key)
  * @param  {int} key    : Desired key number 
  * @return {Node*}      : New node head of the tree
  */
-Node* RedBlackTree::Delete(Node* head, int key) 
+Node* RedBlackTree::Delete(int key) 
 {
     return nullptr;
     
@@ -42,23 +67,9 @@ Node* RedBlackTree::Delete(Node* head, int key)
  * @param  {int} key    : Desired key number 
  * @return {Node*}      : The node with the same key
  */
-Node* RedBlackTree::Find(Node* head, int key) 
+Node* RedBlackTree::Find(int key) 
 {
     return nullptr;
-}
-
-/**
- * Get parent according to the node with the same key.  
- * Return nullptr if the node has no parent.
- * 
- * @param  {Node*} head : Head of the tree
- * @param  {int} key    : Desired key number
- * @return {Node*}      : The parent of the corresponding node
- */
-Node* RedBlackTree::GetParent(Node* head, int key) 
-{
-    return nullptr;
-    
 }
 
 /**
@@ -88,7 +99,9 @@ void RedBlackTree::RotateRight(Node* head)
  * @param  {int} k      : Index number
  * @return {int}        : The Kth minimum number
  */
-int RedBlackTree::KMin(Node* head, int k) 
+int RedBlackTree::KMin(int k) 
 {
     
 }
+
+#endif // __RB_TREE_H__
