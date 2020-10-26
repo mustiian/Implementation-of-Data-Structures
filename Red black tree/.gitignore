@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+rb_test
+rb_test_debug

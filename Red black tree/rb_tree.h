@@ -16,7 +16,7 @@ public:
 
     Node* Delete(int key);
 
-    Node* Find(int key);
+    bool Find(int key);
     
     int KMin(int k);
 
@@ -27,7 +27,9 @@ private:
 
     void RotateRight(Node* head);
 
-    void PrintNode(Node* head, int space);
+    void PrintNode(Node* node);
+
+    Node* FindNode(int key);
 
     Node* head;
     int printSpace = 10;
@@ -75,9 +77,9 @@ Node* RedBlackTree::Delete(int key)
  * @param  {int} key    : Desired key number 
  * @return {Node*}      : The node with the same key
  */
-Node* RedBlackTree::Find(int key) 
+bool RedBlackTree::Find(int key) 
 {
-    return nullptr;
+    return false;
 }
 
 /**
@@ -104,19 +106,36 @@ void RedBlackTree::RotateRight(Node* head)
  * Print info about the node
  * 
  * @param  {Node*} node : Target node
- * @param  {int} space  : Space between nodes
  */
-void RedBlackTree::PrintNode(Node* node, int space) 
+void RedBlackTree::PrintNode(Node* node) 
 {
     if (node == nullptr)
         return; 
 
-    space += this->printSpace;
-    PrintNode(node->GetRightChild(), space);
-    for (int i = this->printSpace; i < space; i++)
-        std::cout << "\t";
-    std::cout << node->key << std::endl;
-    PrintNode(node->GetLeftChild(), space);
+    char Color;
+    Node* left = node->GetLeftChild(); 
+    Node* right = node->GetRightChild();
+
+    if (!left && !right)
+        return;
+
+    if (left){
+        Color = left->GetColor() == BLACK? 'B': 'R'; 
+        std::cout << Color + std::to_string(node->key) + " <- ";
+    }
+
+    Color = node->GetColor() == BLACK? 'B': 'R'; 
+        std::cout << Color + std::to_string(node->key);
+
+    if (right){
+        Color = right->GetColor() == BLACK? 'B': 'R'; 
+        std::cout << " -> " + Color + std::to_string(node->key);
+    }
+
+    std::cout << std::endl;
+    
+    PrintNode(left);
+    PrintNode(right);
 }
 
 /**
@@ -136,7 +155,7 @@ int RedBlackTree::KMin(int k)
  */
 void RedBlackTree::Print() 
 {
-    PrintNode(this->head, 0);
+    PrintNode(this->head);
 }
 
 #endif // __RB_TREE_H__
