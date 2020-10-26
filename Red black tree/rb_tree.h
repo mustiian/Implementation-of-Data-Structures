@@ -109,33 +109,28 @@ void RedBlackTree::RotateRight(Node* head)
  */
 void RedBlackTree::PrintNode(Node* node) 
 {
-    if (node == nullptr)
+    if (node == nullptr || (!node->left && !node->right))
         return; 
 
     char Color;
-    Node* left = node->GetLeftChild(); 
-    Node* right = node->GetRightChild();
 
-    if (!left && !right)
-        return;
-
-    if (left){
-        Color = left->GetColor() == BLACK? 'B': 'R'; 
-        std::cout << Color + std::to_string(node->key) + " <- ";
+    if (node->left){
+        Color = node->left->color == BLACK? 'B': 'R'; 
+        std::cout << Color + std::to_string(node->left->key) + " <- ";
     }
 
-    Color = node->GetColor() == BLACK? 'B': 'R'; 
+    Color = node->color == BLACK? 'B': 'R'; 
         std::cout << Color + std::to_string(node->key);
 
-    if (right){
-        Color = right->GetColor() == BLACK? 'B': 'R'; 
-        std::cout << " -> " + Color + std::to_string(node->key);
+    if (node->right){
+        Color = node->right->color == BLACK? 'B': 'R'; 
+        std::cout << " -> " + Color + std::to_string(node->right->key);
     }
 
     std::cout << std::endl;
     
-    PrintNode(left);
-    PrintNode(right);
+    PrintNode(node->left);
+    PrintNode(node->right);
 }
 
 /**
