@@ -15,7 +15,7 @@ void assert(const char* expr_str, const char* file, int line, bool expr, const s
     {
         cerr << "Assert failed:\t" << message << "\n"
             << "Expected:\t" << expr_str << "\n"
-            << "Source:\t" << file << ", line " << line << "\n";
+            << "Source:\t\t" << file << ", line " << line << "\n";
         abort();
     }
 }
@@ -44,17 +44,24 @@ private:
  */
 void RedBlackTreeTester::TestColor(Node* node) 
 {
+    if (!node)
+        return;
+
     // Test that root is always black
-    TEST(node->GetParent() || node->GetColor() == BLACK, 
-        KeyToString(node) + " node: root is red");
-    // Test that red node has only black children
-    TEST(node->GetColor() == BLACK || !node->GetLeftChild() || node->GetLeftChild()->GetColor() == BLACK, 
-        KeyToString(node) + " node: red node has red left child"); 
-    TEST(node->GetColor() == BLACK || !node->GetRightChild() || node->GetRightChild()->GetColor() == BLACK, 
-        KeyToString(node) + " node: red node has red right child");
-    // Test that red node hasn't red parent
-    TEST(node->GetColor() == BLACK || !node->GetParent() || node->GetParent()->GetColor() == BLACK, 
-        KeyToString(node) + " node: red node has red parent");
+    //TEST(node->GetParent() || node->GetColor() == BLACK, 
+    //    KeyToString(node) + " node: root is red");
+
+    if (node->Color() == RED){
+        if (node->LeftChild())
+            TEST(node->LeftChild()->Color() == BLACK, 
+                KeyToString(node) + " node: red node has red left child"); 
+        if (node->RightChild())
+            TEST(node->RightChild()->Color() == BLACK, 
+                KeyToString(node) + " node: red node has red right child");
+        if (node->Parent())
+            TEST(node->Parent()->Color() == BLACK, 
+                KeyToString(node) + " node: red node has red parent");
+    }
 }
 
 /**
@@ -73,12 +80,12 @@ int RedBlackTreeTester::TestNumberOfBlackNodes(Node* node)
     if (node == nullptr)
         return 1;
 
-    if (!node->GetColor() == BLACK)
+    if (node->Color() == BLACK)
         isBlack = 1;
     
-    leftDepth = TestNumberOfBlackNodes(node->GetLeftChild());
+    leftDepth = TestNumberOfBlackNodes(node->LeftChild());
 
-    rightDepth = TestNumberOfBlackNodes(node->GetRightChild());
+    rightDepth = TestNumberOfBlackNodes(node->RightChild());
             
     string err_message = KeyToString(node) + " node: depth test failed. Left " + 
                         to_string(leftDepth) + ", Right " + to_string(rightDepth);
@@ -119,28 +126,32 @@ void RedBlackTreeTester::TestIntegrity(Node* node, int min, int max)
     if(!node)
         return;
 
-    TEST(!node->GetLeftChild() || node->GetLeftChild()->GetParent() == node, 
-        KeyToString(node->GetLeftChild()) + " node: incorrect parent, expected parent " + 
-        KeyToString(node) + ", current parent " + KeyToString(node->GetLeftChild()->GetParent()));
+    if (node->LeftChild()){
+        TEST(node->LeftChild()->Parent() == node, 
+            KeyToString(node->LeftChild()) + " node: incorrect parent, expected parent " + 
+            KeyToString(node) + ", current parent " + KeyToString(node->LeftChild()->Parent()));
 
-    TEST(!node->GetRightChild() || node->GetRightChild()->GetParent() == node, 
-        KeyToString(node->GetRightChild()) + " node: incorrect parent, expected parent " + 
-        KeyToString(node) + ", current parent " + KeyToString(node->GetRightChild()->GetParent()));
+        TEST(node->LeftChild()->key < node->key, 
+            KeyToString(node) + " node: incorrect sequence, left " + 
+            KeyToString(node->LeftChild()) + " is greater"); 
+    }
 
-    TEST( node->key >= min || node->key <= max, 
-        KeyToString(node->GetRightChild()) + " node: incorrect key. min " + 
+    if (node->RightChild()){
+        TEST(node->RightChild()->Parent() == node, 
+            KeyToString(node->RightChild()) + " node: incorrect parent, expected parent " + 
+            KeyToString(node) + ", current parent " + KeyToString(node->RightChild()->Parent()));
+
+        TEST(node->RightChild()->key > node->key, 
+            KeyToString(node) + " node: incorrect sequence, right " + 
+            KeyToString(node->RightChild()) + " is smaller"); 
+    }
+
+    TEST(node->key >= min || node->key <= max, 
+        KeyToString(node->RightChild()) + " node: incorrect key. min " + 
         to_string(min) + ", max" + to_string(max));
 
-    TEST(!node->GetRightChild() || node->GetRightChild()->key > node->key, 
-        KeyToString(node) + " node: incorrect sequence, right " + 
-        KeyToString(node->GetRightChild()) + " is smaller"); 
-
-    TEST(!node->GetLeftChild() || node->GetLeftChild()->key < node->key, 
-        KeyToString(node) + " node: incorrect sequence, left " + 
-        KeyToString(node->GetLeftChild()) + " is greater"); 
-
-    TestIntegrity(node->GetLeftChild(), min, node->key);
-    TestIntegrity(node->GetRightChild(), node->key, max);
+    TestIntegrity(node->LeftChild(), min, node->key);
+    TestIntegrity(node->RightChild(), node->key, max);
     TestColor(node);
 }
 
@@ -154,7 +165,7 @@ RedBlackTreeTester::~RedBlackTreeTester()
 
 string RedBlackTreeTester::KeyToString(Node* node) 
 {
-    return to_string(node->key);
+    return node? to_string(node->key) : "null";
 }
 
 

@@ -12,9 +12,9 @@ public:
     RedBlackTree();
     ~RedBlackTree();
 
-    Node* Insert(int key);
+    void Insert(int key);
 
-    Node* Delete(int key);
+    void Delete(int key);
 
     bool Find(int key);
     
@@ -22,26 +22,46 @@ public:
 
     void Print();
 
-private:
-    void RotateLeft(Node* head);
+    Node* Head() {return head;}
 
-    void RotateRight(Node* head);
+private:
+    void Rotate(Node* node);
 
     void PrintNode(Node* node);
 
     Node* FindNode(int key);
 
+    void FixUp(Node* node);
+
+    Node* InsertNode(Node* node, int key);
+
     Node* head;
-    int printSpace = 10;
 };
 
 
 RedBlackTree::RedBlackTree()
 {
+    head = nullptr;
 }
 
 RedBlackTree::~RedBlackTree()
 {
+    Node* node = head;
+
+    while (node) {
+        Node* next;
+        if (node->right) {
+            next = node->right;
+            node->right = nullptr;
+        } else if (node->left) {
+            next = node->left;
+            node->left = nullptr;
+        } else {
+            next = node->parent;
+            delete node;
+        }
+        node = next;
+    }
 }
 
 /**
@@ -49,57 +69,95 @@ RedBlackTree::~RedBlackTree()
  * 
  * @param  {Node*} head : Head of the tree
  * @param  {int} key    : Desired key number  
- * @return {Node*}      : New node head of the tree
  */
-Node* RedBlackTree::Insert(int key)
+void RedBlackTree::Insert(int key)
 {
-    return nullptr;
+    //head = InsertNode(head, key);
+
+    if (!head){
+        head = new Node(key, BLACK);
+        return;
+    }
+
+    Node* node = head;
+    while (node->key != key)
+    {
+        if (key < node->key) {
+            if (!node->left)
+                node->left = new Node(key, RED, node);
+            else
+                node->leftDepth++;
+
+            node = node->left;
+        } else {
+            if (!node->right)
+                node->right = new Node(key, RED, node);
+            node = node->right;
+        }
+    }
+
+   FixUp(node);
 }
 
 /**
  * Delete the key with the same key.
- * Return nullptr if there is no node with the same key.
  * 
  * @param  {Node*} head : Head of the tree
  * @param  {int} key    : Desired key number 
- * @return {Node*}      : New node head of the tree
  */
-Node* RedBlackTree::Delete(int key) 
+void RedBlackTree::Delete(int key) 
 {
-    return nullptr;
     
 }
 /**
  * Find the key with the same key.
- * Return nullptr if there is no node with the same key.
  * 
  * @param  {Node*} head : Head of the tree
  * @param  {int} key    : Desired key number 
- * @return {Node*}      : The node with the same key
+ * @return {bool}       : Return false if not found
  */
 bool RedBlackTree::Find(int key) 
 {
     return false;
 }
 
-/**
- * Rotate node to the left 
- * 
- * @param  {Node*} head : Rotated head node
- */
-void RedBlackTree::RotateLeft(Node* head) 
-{
-    
-}
 
 /**
- * Rotae node to the right 
+ * Rotate the node right or left, depends on the parent.
  * 
- * @param  {Node*} head : Rotated head node
+ * @param  {Node*} node : Given node for rotation
  */
-void RedBlackTree::RotateRight(Node* head) 
+void RedBlackTree::Rotate(Node* node) 
 {
-    
+    if (node->parent){
+        if (node->parent->right == node){ // left rotation
+            if (node->left)
+                node->left->parent = node->parent;
+            node->leftDepth += node->parent->leftDepth;
+            
+            node->parent->right = node->left;
+            node->left = node->parent;
+        } else {                        // right rotation
+            if (node->right)
+                node->right->parent = node->parent;
+            node->parent->leftDepth -= node->leftDepth;
+
+            node->parent->left = node->right;
+            node->right = node->parent;
+        }
+
+        if (node->parent->parent)
+            if (node->parent->parent->right == node->parent)
+                node->parent->parent->right = node;
+            else
+                node->parent->parent->left = node;
+        else
+            head = node;
+        
+        Node* originalParent = node->parent;
+        node->parent = node->parent->parent;
+        originalParent->parent = node;
+    }
 }
 
 /**
@@ -112,12 +170,14 @@ void RedBlackTree::PrintNode(Node* node)
     if (node == nullptr || (!node->left && !node->right))
         return; 
 
-    char Color;
+    std::string Color;
 
     if (node->left){
         Color = node->left->color == BLACK? 'B': 'R'; 
         std::cout << Color + std::to_string(node->left->key) + " <- ";
     }
+    else
+        std::cout << "      ";
 
     Color = node->color == BLACK? 'B': 'R'; 
         std::cout << Color + std::to_string(node->key);
@@ -131,6 +191,63 @@ void RedBlackTree::PrintNode(Node* node)
     
     PrintNode(node->left);
     PrintNode(node->right);
+}
+
+void RedBlackTree::FixUp(Node* node) 
+{
+    while (node->parent && node->parent->color == RED)
+    {
+        if (node->Uncle() && node->Uncle()->color == RED){
+            node->parent->color = BLACK;
+            node->Uncle()->color = BLACK;
+            node->parent->parent->color = RED;
+            node = node->parent->parent;
+        }
+        else
+        {
+            node->parent->color = BLACK;
+            if (node->parent->parent)
+                node->parent->parent->color = RED;
+            if (node == node->parent->right || node == node->parent->left){
+                node = node->parent;
+                Rotate(node);
+            }
+            else
+                Rotate(node->parent->parent);
+        }
+    }
+    head->color = BLACK;
+}
+
+Node* RedBlackTree::InsertNode(Node* node, int key) 
+{
+    if (!node)
+        return new Node(key, RED);
+
+    if (node->key == key)
+        return nullptr;
+    
+    if (node->left && node->right)
+        if (node->left->color == RED && node->right->color == RED){
+            node->left->color = BLACK;
+            node->right->color = BLACK;
+            node->color = node->color == BLACK? RED : BLACK;
+        }
+    if (key < node->key)
+        node->left = InsertNode(node->left, key);
+    else if (key > node->key)
+        node->right = InsertNode(node->right, key);
+
+    if (node->left){
+        if (node->right)
+            if (node->left->color == BLACK && node->right->color == RED)
+                Rotate(node->right);
+        if (node->left->left)
+            if (node->left->color == RED && node->left->left->color == RED)
+                Rotate(node->left);
+    }
+
+    return node;
 }
 
 /**
