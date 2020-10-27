@@ -20,9 +20,9 @@ int main(int argc, char const *argv[])
     t.Insert(15);
 
     t.Print();
-
+    
     tester.TestIntegrity(t.Head(), 3, 38);
     tester.TestNumberOfBlackNodes(t.Head());
-
+    tester.TestKthMin(8);
     return 0;
 }

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits>
 
 class RedBlackTree
 {
@@ -32,8 +33,6 @@ private:
     Node* FindNode(int key);
 
     void FixUp(Node* node);
-
-    Node* InsertNode(Node* node, int key);
 
     Node* head;
 };
@@ -72,8 +71,6 @@ RedBlackTree::~RedBlackTree()
  */
 void RedBlackTree::Insert(int key)
 {
-    //head = InsertNode(head, key);
-
     if (!head){
         head = new Node(key, BLACK);
         return;
@@ -85,9 +82,8 @@ void RedBlackTree::Insert(int key)
         if (key < node->key) {
             if (!node->left)
                 node->left = new Node(key, RED, node);
-            else
-                node->leftDepth++;
 
+            node->leftDepth++;
             node = node->left;
         } else {
             if (!node->right)
@@ -133,7 +129,7 @@ void RedBlackTree::Rotate(Node* node)
         if (node->parent->right == node){ // left rotation
             if (node->left)
                 node->left->parent = node->parent;
-            node->leftDepth += node->parent->leftDepth;
+            node->leftDepth += node->parent->leftDepth + 1;
             
             node->parent->right = node->left;
             node->left = node->parent;
@@ -193,6 +189,11 @@ void RedBlackTree::PrintNode(Node* node)
     PrintNode(node->right);
 }
 
+/**
+ * Fix up the tree after insertion (down up)
+ * 
+ * @param  {Node*} node : Node to fix up
+ */
 void RedBlackTree::FixUp(Node* node) 
 {
     while (node->parent && node->parent->color == RED)
@@ -219,37 +220,6 @@ void RedBlackTree::FixUp(Node* node)
     head->color = BLACK;
 }
 
-Node* RedBlackTree::InsertNode(Node* node, int key) 
-{
-    if (!node)
-        return new Node(key, RED);
-
-    if (node->key == key)
-        return nullptr;
-    
-    if (node->left && node->right)
-        if (node->left->color == RED && node->right->color == RED){
-            node->left->color = BLACK;
-            node->right->color = BLACK;
-            node->color = node->color == BLACK? RED : BLACK;
-        }
-    if (key < node->key)
-        node->left = InsertNode(node->left, key);
-    else if (key > node->key)
-        node->right = InsertNode(node->right, key);
-
-    if (node->left){
-        if (node->right)
-            if (node->left->color == BLACK && node->right->color == RED)
-                Rotate(node->right);
-        if (node->left->left)
-            if (node->left->color == RED && node->left->left->color == RED)
-                Rotate(node->left);
-    }
-
-    return node;
-}
-
 /**
  * Return the Kth minimum number
  * 
@@ -259,7 +229,26 @@ Node* RedBlackTree::InsertNode(Node* node, int key)
  */
 int RedBlackTree::KMin(int k) 
 {
-    
+    Node* node = head;
+    int position = k;
+
+    while (position > 0)
+    {
+       while (node->left && position <= node->leftDepth){
+            node = node->left;
+        }
+        if (position == node->leftDepth + 1)
+            position = 0;
+        else
+        {
+            if (!node->right)
+                return INT32_MAX;
+
+            position -= node->leftDepth + 1;
+            node = node->right;
+        }
+    }
+    return node->key;
 }
 /**
  * Print all nodes of the tree

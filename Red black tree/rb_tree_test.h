@@ -27,10 +27,9 @@ private:
 public:
     void TestColor(Node* node);
     int TestNumberOfBlackNodes(Node* head);
-
     void TestSequence(int length);
-
     void TestIntegrity(Node* node, int min, int max);
+    void TestKthMin(int length);
 
     RedBlackTreeTester();
     ~RedBlackTreeTester();
@@ -107,6 +106,8 @@ void RedBlackTreeTester::TestSequence(int length)
     for (int i = 2; i < length; i+=2)
         tree.Insert(i);
 
+    TestIntegrity(tree.Head(), 2, length); 
+
     for (int i = 2; i < length; i+=2)
         TEST(!tree.Find(i), to_string(i) + " key: could not be found");
 
@@ -153,6 +154,21 @@ void RedBlackTreeTester::TestIntegrity(Node* node, int min, int max)
     TestIntegrity(node->LeftChild(), min, node->key);
     TestIntegrity(node->RightChild(), node->key, max);
     TestColor(node);
+}
+
+void RedBlackTreeTester::TestKthMin(int length) 
+{
+    RedBlackTree tree;
+    int current = 0;
+
+    for (int i = 2; i < length; i+=2)
+        tree.Insert(i);
+
+    for (int i = 2, k = 1; i < length; i+=2, k++){
+        current = tree.KMin(k);
+        TEST(i == current, "incorect " + to_string(k) + "th min, expected " +
+                to_string(i) + ", current " + to_string(current));
+    }
 }
 
 RedBlackTreeTester::RedBlackTreeTester()
