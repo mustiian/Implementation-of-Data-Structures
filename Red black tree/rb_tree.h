@@ -6,6 +6,8 @@
 #include <vector>
 #include <string>
 #include <limits>
+#include <ctime>
+#include <stdlib.h>
 
 class RedBlackTree
 {
@@ -76,6 +78,9 @@ void RedBlackTree::Insert(int key)
         return;
     }
 
+    if (FindNode(key))
+        return;
+
     Node* node = head;
     while (node->key != key)
     {
@@ -83,7 +88,7 @@ void RedBlackTree::Insert(int key)
             if (!node->left)
                 node->left = new Node(key, RED, node);
 
-            node->leftDepth++;
+            node->quantityLeftNodes++;
             node = node->left;
         } else {
             if (!node->right)
@@ -105,6 +110,7 @@ void RedBlackTree::Delete(int key)
 {
     
 }
+
 /**
  * Find the key with the same key.
  * 
@@ -114,7 +120,7 @@ void RedBlackTree::Delete(int key)
  */
 bool RedBlackTree::Find(int key) 
 {
-    return false;
+    return FindNode(key) == nullptr? false : true;
 }
 
 
@@ -129,14 +135,14 @@ void RedBlackTree::Rotate(Node* node)
         if (node->parent->right == node){ // left rotation
             if (node->left)
                 node->left->parent = node->parent;
-            node->leftDepth += node->parent->leftDepth + 1;
+            node->quantityLeftNodes += node->parent->quantityLeftNodes + 1; 
             
             node->parent->right = node->left;
             node->left = node->parent;
         } else {                        // right rotation
             if (node->right)
                 node->right->parent = node->parent;
-            node->parent->leftDepth -= node->leftDepth;
+            node->parent->quantityLeftNodes -= node->quantityLeftNodes + 1; 
 
             node->parent->left = node->right;
             node->right = node->parent;
@@ -189,6 +195,21 @@ void RedBlackTree::PrintNode(Node* node)
     PrintNode(node->right);
 }
 
+Node* RedBlackTree::FindNode(int key) 
+{
+    Node * node = head;
+    while (node && (node->key != key))
+    {
+        if (key < node->key) {
+            node = node->left;
+        } else {
+            node = node->right;
+        }
+    }
+
+    return node;
+}
+
 /**
  * Fix up the tree after insertion (down up)
  * 
@@ -196,25 +217,29 @@ void RedBlackTree::PrintNode(Node* node)
  */
 void RedBlackTree::FixUp(Node* node) 
 {
+    if (!node)
+        return;
+
     while (node->parent && node->parent->color == RED)
-    {
+    {   // Red uncle case
         if (node->Uncle() && node->Uncle()->color == RED){
             node->parent->color = BLACK;
             node->Uncle()->color = BLACK;
             node->parent->parent->color = RED;
             node = node->parent->parent;
         }
-        else
+        else // Black uncle or no uncle
         {
-            node->parent->color = BLACK;
-            if (node->parent->parent)
-                node->parent->parent->color = RED;
-            if (node == node->parent->right || node == node->parent->left){
-                node = node->parent;
+            // Red nodes in triangle case
+            if ((node->parent == node->parent->parent->left && node == node->parent->right) || 
+                (node->parent == node->parent->parent->right && node == node->parent->left)){
+                Node * originalParent = node->parent;
                 Rotate(node);
+                node = originalParent;
             }
-            else
-                Rotate(node->parent->parent);
+            node->parent->color = BLACK; 
+            node->parent->parent->color = RED;
+            Rotate(node->parent);
         }
     }
     head->color = BLACK;
@@ -232,19 +257,19 @@ int RedBlackTree::KMin(int k)
     Node* node = head;
     int position = k;
 
-    while (position > 0)
+    while (position > 0) // simplify to 1 while
     {
-       while (node->left && position <= node->leftDepth){
+       if (node->left && node->quantityLeftNodes >= position){
             node = node->left;
         }
-        if (position == node->leftDepth + 1)
-            position = 0;
+        else if (position == node->quantityLeftNodes + 1)
+            return node->key;
         else
         {
             if (!node->right)
                 return INT32_MAX;
 
-            position -= node->leftDepth + 1;
+            position -= node->quantityLeftNodes + 1;
             node = node->right;
         }
     }

@@ -20,7 +20,7 @@ public:
     ColorType Color() {return color;}
     Node* Uncle();
 private:
-    int leftDepth;
+    int quantityLeftNodes;
     Node* parent;
     Node* left;
     Node* right;
@@ -36,7 +36,7 @@ Node::Node(int key, ColorType color, Node* parent=nullptr, Node* left=nullptr, N
     this->color = color;
     if (left) left->parent = this;
     if (right) right->parent = this;
-    leftDepth = 0;
+    quantityLeftNodes = 0;
 }
 
 Node::~Node()

@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS=-std=c++11 -O2 -pedantic -Wall
-OBJECTS=node.h rb_tree.h rb_tree_main.cpp  
+OBJECTS=node.h rb_tree.h rb_tree_test.h rb_tree_main.cpp  
 test: rb_test
 	./$<
 

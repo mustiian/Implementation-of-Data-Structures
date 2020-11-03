@@ -5,6 +5,7 @@
 #include<iostream>
 #include <string>
 #include <cstdlib>
+#include <utility>
 
 using namespace std;
 
@@ -31,10 +32,14 @@ public:
     void TestIntegrity(Node* node, int min, int max);
     void TestKthMin(int length);
 
+    void TestRandomSequence(int length, int randSeed);
+    void TestRandomPermutation(int length, int randSeed);
     RedBlackTreeTester();
     ~RedBlackTreeTester();
 private:
     string KeyToString(Node* node);
+    vector<int> GenerateRandomSequence(int length);
+    vector<int> GenerateRandomPermutation(int length);
 };
 /**
  * Test red node. Its GetParent() is not red and the children are black.
@@ -46,9 +51,8 @@ void RedBlackTreeTester::TestColor(Node* node)
     if (!node)
         return;
 
-    // Test that root is always black
-    //TEST(node->GetParent() || node->GetColor() == BLACK, 
-    //    KeyToString(node) + " node: root is red");
+    TEST(node->Parent() || node->Color() == BLACK, 
+            KeyToString(node) + " node: root is red");
 
     if (node->Color() == RED){
         if (node->LeftChild())
@@ -103,16 +107,18 @@ void RedBlackTreeTester::TestSequence(int length)
 {
     RedBlackTree tree;
 
-    for (int i = 2; i < length; i+=2)
+    for (int i = 2; i < length; i+=2){
         tree.Insert(i);
+        TestIntegrity(tree.Head(), 2, i); 
+    }
 
-    TestIntegrity(tree.Head(), 2, length); 
+    TestNumberOfBlackNodes(tree.Head());
 
     for (int i = 2; i < length; i+=2)
-        TEST(!tree.Find(i), to_string(i) + " key: could not be found");
-
-    for (int i = 1; i < length; i+=2)    
-        tree.Delete(i);
+        TEST(tree.Find(i), to_string(i) + " key: could not be found");
+    
+    // for (int i = 1; i < length; i+=2)    
+    //     tree.Delete(i);
 }
 
 /**
@@ -171,6 +177,50 @@ void RedBlackTreeTester::TestKthMin(int length)
     }
 }
 
+void RedBlackTreeTester::TestRandomSequence(int length, int randSeed) 
+{
+    srand(randSeed);
+    vector<int> sequence = GenerateRandomSequence(length);
+    RedBlackTree tree;
+
+    for (int key : sequence)
+    {
+        tree.Insert(key);
+        TestIntegrity(tree.Head(), 0, length);
+    }
+
+    TestNumberOfBlackNodes(tree.Head());
+
+    for (int i = 0; i < length; i++)
+        TEST(tree.Find(sequence[rand() % length]), 
+                to_string(i) + " key: could not be found");
+    
+    // for (int key : sequence)    
+    //     tree.Delete(key);
+}
+
+void RedBlackTreeTester::TestRandomPermutation(int length, int randSeed) 
+{
+    srand(randSeed);
+    vector<int> permutation = GenerateRandomPermutation(length);
+    RedBlackTree tree;
+
+    for (int key : permutation)
+    {
+        tree.Insert(key);
+        TestIntegrity(tree.Head(), 0, length);
+    }
+
+    TestNumberOfBlackNodes(tree.Head());
+
+    for (int i = 0; i < length; i++)
+        TEST(tree.Find(permutation[rand() % length]), 
+                to_string(i) + " key: could not be found");
+    
+    // for (int key : sequence)    
+    //     tree.Delete(key);
+}
+
 RedBlackTreeTester::RedBlackTreeTester()
 {
 }
@@ -184,5 +234,29 @@ string RedBlackTreeTester::KeyToString(Node* node)
     return node? to_string(node->key) : "null";
 }
 
+vector<int> RedBlackTreeTester::GenerateRandomSequence(int length) 
+{
+    vector<int> seq;
+
+    for (int i = 0; i < length; i++)
+        seq.push_back(rand() % length);
+    
+    return seq;
+}
+
+vector<int> RedBlackTreeTester::GenerateRandomPermutation(int length) 
+{
+    vector<int> per;
+
+    for (int i = 0; i < length; i++)
+    {
+         per.push_back(i);
+    }
+    
+    for (int i = 0; i < length; i++)
+        swap(per[i], per[(i + rand()) % length]);
+    
+    return per;
+}
 
 #endif // __RB_TREE_TEST_H__
