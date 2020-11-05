@@ -19,6 +19,7 @@ public:
     Node* RightChild() {return right;}
     ColorType Color() {return color;}
     Node* Uncle();
+    Node* Sibling();
 private:
     int quantityLeftNodes;
     Node* parent;
@@ -45,17 +46,20 @@ Node::~Node()
 
 Node* Node::Uncle() 
 {
-    Node* grandparent = nullptr;
-
-    if (this->parent)
-        grandparent = this->parent->parent;
-
-    if (!grandparent)
+    if (!this->parent)
         return nullptr;
 
-    if (this->parent == grandparent->left)
-        return grandparent->right;
-    else
-        return grandparent->left;
+    return this->parent->Sibling();
+}
+
+Node* Node::Sibling() 
+{
+    if (!this->parent)
+        return nullptr;
+    
+    if (this->parent->left == this)
+        return this->parent->right;
+    else 
+        return this->parent->left;
 }
 #endif // __NODE_H__

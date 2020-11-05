@@ -7,7 +7,7 @@ int main(int argc, char const *argv[])
 
     tester.TestRandomSequence(100, 14);
     tester.TestSequence(100);
-    tester.TestRandomPermutation(155, 87);
+    tester.TestRandomPermutation(100, 32);
 
     return 0;
 }

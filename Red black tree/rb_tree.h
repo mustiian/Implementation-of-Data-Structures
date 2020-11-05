@@ -36,6 +36,12 @@ private:
 
     void FixUp(Node* node);
 
+    void FixDelete(Node* node);
+
+    Node* Min(Node* node);
+
+    void Replace(Node* node, Node* dest);
+
     Node* head;
 };
 
@@ -66,7 +72,8 @@ RedBlackTree::~RedBlackTree()
 }
 
 /**
- * Create new node with the key and insert it to the tree 
+ * Create new node with the key and insert it to the tree.
+ * if there is already a node with the same key, then ignores the key.  
  * 
  * @param  {Node*} head : Head of the tree
  * @param  {int} key    : Desired key number  
@@ -108,7 +115,49 @@ void RedBlackTree::Insert(int key)
  */
 void RedBlackTree::Delete(int key) 
 {
+    Node* node = FindNode(key);
+
+    if (node == nullptr)
+        return;
+
+    if (node->left && node->right){
+        Node* swap = Min(node->right);
+        node->key = swap->key;
+        node = swap;
+    }
+
+    Node* replaceNode;
+
+    if (node->left){
+        replaceNode = node->left;
+        Replace(node, replaceNode);
+    } else if (node->right){
+        replaceNode = node -> right;
+        Replace(node, replaceNode);
+    } else{
+        replaceNode = node;
+    }
+        
+    if (node->color == BLACK) {
+		if (replaceNode->color == RED)
+			replaceNode->color = BLACK;
+		else
+			FixDelete(replaceNode);
+	}
+
+    //FixLeftNodesQuantity(replaceNode); TODO
     
+    if (replaceNode == node && node->parent){
+        if (node == node->parent->left)
+            node->parent->left = nullptr;
+        else 
+            node->parent->right = nullptr;
+    }
+
+    if (node == head && !node->left && !node->right)
+        head = nullptr;
+
+	delete node;
 }
 
 /**
@@ -169,6 +218,9 @@ void RedBlackTree::Rotate(Node* node)
  */
 void RedBlackTree::PrintNode(Node* node) 
 {
+    if (node == head)
+        std::cout << "==============" << std::endl;
+
     if (node == nullptr || (!node->left && !node->right))
         return; 
 
@@ -243,6 +295,101 @@ void RedBlackTree::FixUp(Node* node)
         }
     }
     head->color = BLACK;
+}
+
+void RedBlackTree::FixDelete(Node* node) 
+{
+    Node* sibling = nullptr;
+    if (node->parent && node->color == BLACK)
+    {
+        sibling = node->Sibling();
+        // Case 2
+        if (sibling && sibling->color == RED){
+            Rotate(sibling);
+            sibling->color = BLACK;
+            node->parent->color = RED;
+            sibling = node->Sibling();
+        }
+        ColorType rightSibColor = (!sibling->right or sibling->right->color == BLACK)? BLACK : RED;
+        ColorType leftSibColor = (!sibling->left or sibling->left->color == BLACK)? BLACK : RED;
+
+        if (sibling->color == BLACK){
+            // Case 3
+            if (node->parent->color == BLACK && 
+                    rightSibColor == BLACK && leftSibColor == BLACK){
+                sibling->color = RED;
+                FixDelete (node ->parent);
+            } 
+            // Case 4
+            else if (node->parent->color == RED && 
+                rightSibColor == BLACK && 
+                leftSibColor == BLACK){
+                node->parent->color = BLACK;
+                sibling->color = RED;
+            // Case 5 (as left node)
+            } else if (node == node->parent->left && rightSibColor == BLACK &&
+                    leftSibColor == RED){
+                sibling->color = RED;
+                sibling->left->color = BLACK;
+                Rotate(sibling->left);
+            // Case 5 (as right node)
+            } else if (node == node->parent->right && leftSibColor == BLACK &&
+                    rightSibColor == RED){
+                sibling->color = RED;
+                sibling->right->color = BLACK;
+                Rotate(sibling->right);
+                }
+            }
+            sibling = node->Sibling();
+            rightSibColor = (!sibling->right or sibling->right->color == BLACK)? BLACK : RED;
+            leftSibColor = (!sibling->left or sibling->left->color == BLACK)? BLACK : RED;
+            // Case 6 (as right node)
+            if (sibling->left && node == node->parent->right && 
+                    leftSibColor == RED){
+                sibling->color = node->parent->color;
+                node->parent->color = BLACK;
+                sibling->left->color = BLACK;
+                Rotate(sibling);
+            // Case 6 (as left node)
+            } else if (sibling->right && node == node->parent->left && 
+                    rightSibColor == RED){
+                sibling->color = node->parent->color;
+                node->parent->color = BLACK;
+                sibling->right->color = BLACK;
+                Rotate(sibling);
+            }
+        }
+}
+
+Node* RedBlackTree::Min(Node* node) 
+{
+    Node * targetNode = node;
+
+    while (targetNode->left != nullptr)
+    {
+        targetNode = targetNode->left;
+    }
+
+    return targetNode;
+}
+
+/**
+ * Replace node with the destination node
+ * 
+ * @param  {Node*} node : Original node
+ * @param  {Node*} dest : Destination node
+ */
+void RedBlackTree::Replace(Node* node, Node* dest) 
+{
+    if (!node->parent)
+        head = dest;
+    else if (node == node->parent->left)
+        node->parent->left = dest;
+    else
+        node->parent->right = dest;
+
+    if (dest)
+        dest->parent = node->parent;
 }
 
 /**
