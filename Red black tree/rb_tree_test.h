@@ -23,8 +23,6 @@ void assert(const char* expr_str, const char* file, int line, bool expr, const s
 
 class RedBlackTreeTester
 {
-private:
-    
 public:
     void TestColor(Node* node);
     int TestNumberOfBlackNodes(Node* head);
@@ -117,8 +115,8 @@ void RedBlackTreeTester::TestSequence(int length)
     for (int i = 2; i < length; i+=2)
         TEST(tree.Find(i), to_string(i) + " key: could not be found");
     
-    // for (int i = 1; i < length; i+=2)    
-    //     tree.Delete(i);
+    for (int i = 1; i < length; i+=2)    
+         tree.Delete(i);
 }
 
 /**
@@ -175,6 +173,16 @@ void RedBlackTreeTester::TestKthMinSequence(int length)
         TEST(i == current, "incorect " + to_string(k) + "th min, expected " +
                 to_string(i) + ", current " + to_string(current));
     }
+
+    for (int i = 2; i < length/2; i+=2)
+        tree.Delete(i);
+
+    int startIndex = length/2 + length%2;
+    for (int i = startIndex, k = 1; i < length; i+=2, k++){
+        current = tree.KMin(k);
+        TEST(i == current, "incorect " + to_string(k) + "th min, expected " +
+                to_string(i) + ", current " + to_string(current));
+    }
 }
 
 /**
@@ -196,7 +204,6 @@ void RedBlackTreeTester::TestRandomSequence(int length, int randSeed)
         TestIntegrity(tree.Head(), 0, length);
         TestNumberOfBlackNodes(tree.Head());
     }
-
 
     for (int i = 0; i < length; i++)
         TEST(tree.Find(sequence[rand() % length]), 
@@ -237,7 +244,7 @@ void RedBlackTreeTester::TestRandomPermutation(int length, int randSeed)
         TEST(i - 1 == current, "incorect " + to_string(i) + "th min, expected " +
                 to_string(i - 1) + ", current " + to_string(current));
     }
-
+    
     for (int key : permutation){
         tree.Delete(key);
         TestIntegrity(tree.Head(), 0, length);

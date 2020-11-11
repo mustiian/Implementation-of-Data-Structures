@@ -2,12 +2,23 @@
 
 int main(int argc, char const *argv[])
 {
-    RedBlackTreeTester tester;
     RedBlackTree t;
+    string operation;
+    int value;
 
-    tester.TestRandomSequence(100, 14);
-    tester.TestSequence(100);
-    tester.TestRandomPermutation(100, 32);
-
+    while (cin >> operation >> value)
+    {
+        if (operation == "I")
+            t.Insert(value);
+        else if (operation == "F")
+            cout << t.KMin(value) << endl;
+        else if (operation == "D")
+            t.Delete(value);
+        else
+        {
+            cout << "Invalid input" << endl;
+            return 1;
+        }
+    }
     return 0;
 }

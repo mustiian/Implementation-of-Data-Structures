@@ -34,13 +34,15 @@ private:
 
     Node* FindNode(int key);
 
-    void FixUp(Node* node);
+    void FixUpInsert(Node* node);
 
-    void FixDelete(Node* node);
+    void FixUpDelete(Node* node);
 
     Node* Min(Node* node);
 
     void Replace(Node* node, Node* dest);
+
+    void FixLeftNodesQuantity(Node* node);
 
     Node* head;
 };
@@ -104,7 +106,7 @@ void RedBlackTree::Insert(int key)
         }
     }
 
-   FixUp(node);
+   FixUpInsert(node);
 }
 
 /**
@@ -120,6 +122,7 @@ void RedBlackTree::Delete(int key)
     if (node == nullptr)
         return;
 
+    // Find successor and update it with the node
     if (node->left && node->right){
         Node* swap = Min(node->right);
         node->key = swap->key;
@@ -128,6 +131,7 @@ void RedBlackTree::Delete(int key)
 
     Node* replaceNode;
 
+    // Replace child with deleting node
     if (node->left){
         replaceNode = node->left;
         Replace(node, replaceNode);
@@ -142,11 +146,12 @@ void RedBlackTree::Delete(int key)
 		if (replaceNode->color == RED)
 			replaceNode->color = BLACK;
 		else
-			FixDelete(replaceNode);
+			FixUpDelete(replaceNode);
 	}
 
-    //FixLeftNodesQuantity(replaceNode); TODO
+    FixLeftNodesQuantity(replaceNode);
     
+    // Set parents child (deleted node) to null
     if (replaceNode == node && node->parent){
         if (node == node->parent->left)
             node->parent->left = nullptr;
@@ -154,6 +159,7 @@ void RedBlackTree::Delete(int key)
             node->parent->right = nullptr;
     }
 
+    // The last node in the tree
     if (node == head && !node->left && !node->right)
         head = nullptr;
 
@@ -219,7 +225,7 @@ void RedBlackTree::Rotate(Node* node)
 void RedBlackTree::PrintNode(Node* node) 
 {
     if (node == head)
-        std::cout << "==============" << std::endl;
+        std::cout << "=================" << std::endl;
 
     if (node == nullptr || (!node->left && !node->right))
         return; 
@@ -246,7 +252,12 @@ void RedBlackTree::PrintNode(Node* node)
     PrintNode(node->left);
     PrintNode(node->right);
 }
-
+/**
+ * Find a node for the given key 
+ * 
+ * @param  {int} key : Key
+ * @return {Node*}   : Node with the same key
+ */
 Node* RedBlackTree::FindNode(int key) 
 {
     Node * node = head;
@@ -267,7 +278,7 @@ Node* RedBlackTree::FindNode(int key)
  * 
  * @param  {Node*} node : Node to fix up
  */
-void RedBlackTree::FixUp(Node* node) 
+void RedBlackTree::FixUpInsert(Node* node) 
 {
     if (!node)
         return;
@@ -280,7 +291,8 @@ void RedBlackTree::FixUp(Node* node)
             node->parent->parent->color = RED;
             node = node->parent->parent;
         }
-        else // Black uncle or no uncle
+        // Black uncle or no uncle
+        else 
         {
             // Red nodes in triangle case
             if ((node->parent == node->parent->parent->left && node == node->parent->right) || 
@@ -289,6 +301,7 @@ void RedBlackTree::FixUp(Node* node)
                 Rotate(node);
                 node = originalParent;
             }
+            // Red nodes in line case
             node->parent->color = BLACK; 
             node->parent->parent->color = RED;
             Rotate(node->parent);
@@ -296,10 +309,15 @@ void RedBlackTree::FixUp(Node* node)
     }
     head->color = BLACK;
 }
-
-void RedBlackTree::FixDelete(Node* node) 
+/**
+ * Fix up the tree after deletion (down up) 
+ * 
+ * @param  {Node*} node : Node to fix up
+ */
+void RedBlackTree::FixUpDelete(Node* node) 
 {
     Node* sibling = nullptr;
+    // Case 1
     if (node->parent && node->color == BLACK)
     {
         sibling = node->Sibling();
@@ -318,7 +336,7 @@ void RedBlackTree::FixDelete(Node* node)
             if (node->parent->color == BLACK && 
                     rightSibColor == BLACK && leftSibColor == BLACK){
                 sibling->color = RED;
-                FixDelete (node ->parent);
+                FixUpDelete (node ->parent);
             } 
             // Case 4
             else if (node->parent->color == RED && 
@@ -340,9 +358,11 @@ void RedBlackTree::FixDelete(Node* node)
                 Rotate(sibling->right);
                 }
             }
+            // Update sibling because of possible previous rotations
             sibling = node->Sibling();
             rightSibColor = (!sibling->right or sibling->right->color == BLACK)? BLACK : RED;
             leftSibColor = (!sibling->left or sibling->left->color == BLACK)? BLACK : RED;
+
             // Case 6 (as right node)
             if (sibling->left && node == node->parent->right && 
                     leftSibColor == RED){
@@ -360,7 +380,12 @@ void RedBlackTree::FixDelete(Node* node)
             }
         }
 }
-
+/**
+ * Find a node with a minimal key in the given subtree
+ * 
+ * @param  {Node*} node : Node where min should be found
+ * @return {Node*}      : Node with a min key
+ */
 Node* RedBlackTree::Min(Node* node) 
 {
     Node * targetNode = node;
@@ -392,6 +417,16 @@ void RedBlackTree::Replace(Node* node, Node* dest)
         dest->parent = node->parent;
 }
 
+void RedBlackTree::FixLeftNodesQuantity(Node* node) 
+{
+    while (node->parent)
+    {
+        if (node == node->parent->left)
+            node->parent->quantityLeftNodes--;
+        node = node->parent;
+    }
+}
+
 /**
  * Return the Kth minimum number
  * 
@@ -404,7 +439,7 @@ int RedBlackTree::KMin(int k)
     Node* node = head;
     int position = k;
 
-    while (position > 0) // simplify to 1 while
+    while (position > 0) 
     {
        if (node->left && node->quantityLeftNodes >= position){
             node = node->left;
