@@ -1,6 +1,6 @@
 CXX=g++
-CXXFLAGS=-std=c++11 -O2 -pedantic -Wall -g
-OBJECTS=golberg_flow.h golberg_flow_test.h main.cpp
+CXXFLAGS=-std=c++11 -O3 -Wall -Wextra -g -Wno-sign-compare
+OBJECTS=vertex.h edge.h golberg_flow.h golberg_flow_test.h main.cpp
 test: flow_test
 	./$<
 
