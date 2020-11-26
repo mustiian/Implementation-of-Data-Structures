@@ -4,6 +4,7 @@
 #include "vertex.h"
 #include "edge.h"
 
+// Debug
 #define NDEBUG
 
 #ifdef NDEBUG
@@ -18,7 +19,7 @@ public:
     ~Golberg_flow(){}
     
     void add_edge(int from, int to, int capacity);
-    int get_max_flow(int source, int target);
+    int get_max_flow();
     int number_of_edges(){return m_edges.size();}
     int number_of_vertices(){return m_vertices.size();}
 private:
@@ -39,7 +40,7 @@ private:
  * @param  {int} source   : Index of source vertex
  * @param  {int} target   : Index of target vertex
  */
-Golberg_flow::Golberg_flow(int edges, int vertices, int source, int target) 
+Golberg_flow::Golberg_flow(int vertices, int edges, int source, int target) 
 {
     m_edges.reserve(edges);
     m_vertices.reserve(vertices + 1);
@@ -53,6 +54,10 @@ Golberg_flow::Golberg_flow(int edges, int vertices, int source, int target)
         else
             m_vertices.push_back ({i});
     }
+
+#ifdef NDEBUG
+    Golberg_flow_tester::test_height_diff(m_edges, __func__);
+#endif
 
     m_index_source = source;
     m_index_target = target;

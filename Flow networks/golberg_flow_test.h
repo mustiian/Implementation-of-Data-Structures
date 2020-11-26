@@ -1,7 +1,8 @@
 #ifndef __GOLBER_FLOW_TEST__
 #define __GOLBER_FLOW_TEST__
 
-#include "golberg_flow.h"
+#include "vertex.h"
+#include "edge.h"
 #include <string>
 #include <iostream>
 

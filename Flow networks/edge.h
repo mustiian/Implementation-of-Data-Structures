@@ -1,4 +1,4 @@
-#ifndef __EDGE
+#ifndef __EDGE__
 #define __EDGE__
 
 #include "vertex.h"
