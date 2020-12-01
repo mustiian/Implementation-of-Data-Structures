@@ -4,31 +4,32 @@
 #include <vector>
 
 class Edge;
-class Golberg_flow;
-
-enum Vertex_type {DEFAULT, SOURCE, TARGET};
+class Goldberg_flow;
 
 class Vertex
 {
-    friend class Golberg_flow;
+    friend class Goldberg_flow;
 private:
-    int m_ID;
+    const int m_ID;
     int m_height;
     int m_excess_flow;
-    Vertex_type m_type;
-    std::vector<Edge*> m_edges_from;
-    std::vector<Edge*> m_edges_to;
+    std::vector<Edge*> m_edges;
+
+    static int vertex_number;
 public:
-    Vertex(){}
-    Vertex(int ID) : 
-        m_ID(ID), m_height(0), m_excess_flow(0), m_type(Vertex_type::DEFAULT){}
-    Vertex(int ID, int height, Vertex_type type) : 
-        m_ID(ID), m_height(height), m_excess_flow(0), m_type(type){}
+    Vertex() : 
+        m_ID(vertex_number++), m_height(0), m_excess_flow(0){}
+    Vertex(int height) : 
+        m_ID(vertex_number++), m_height(height), m_excess_flow(0){}
 
     int get_height() const {return m_height;}
     int get_excess_flow() const {return m_excess_flow;}
     int get_ID() const {return m_ID;}
-    int get_type() const {return m_type;}
+
+    bool operator ==(const Vertex& v)const{ return this->m_ID == v.m_ID; }
+    bool operator !=(const Vertex& v)const{ return this->m_ID != v.m_ID; }
 };
+
+int Vertex::vertex_number=0;
 
 #endif // __VERTEX__
