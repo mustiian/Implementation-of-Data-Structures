@@ -18,10 +18,10 @@ public:
 
 void Goldberg_flow::test_height_diff() 
 {
-    int reserve = 0;
+    int residual = 0;
     for(const auto& e : m_edges){
-        reserve = e.second.get_capacity() - e.second.get_flow();
-        if (reserve > 0){
+        residual = e.second.get_capacity() - e.second.get_flow(e.second.m_start);
+        if (residual > 0){
             assert((e.second.get_start()->get_height() - e.second.get_end()->get_height()) <= 1);
         }
     }
@@ -33,7 +33,7 @@ void Goldberg_flow::test_excess_flow()
         int e_flow = 0;
         for (const auto& edge : vertex.m_edges)
         {
-            e_flow += edge->get_flow();
+            e_flow += edge->get_flow(edge->m_start);
         }
         
         if (vertex != *m_source){
@@ -62,7 +62,7 @@ void Goldberg_flow::test_flow()
 {
     int flow = 0;
     for(const auto& e : m_edges){
-        flow = e.second.get_flow();
+        flow = e.second.get_flow(e.second.m_start);
         assert(0 <= flow && flow <= e.second.get_capacity());
     }
 }
