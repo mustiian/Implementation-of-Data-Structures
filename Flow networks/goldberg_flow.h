@@ -7,6 +7,7 @@
 #include <functional>
 #include <utility>
 #include <algorithm>
+#include <cstdio>
 
 //#define NDEBUG
 
@@ -102,7 +103,7 @@ int Goldberg_flow::get_max_flow()
 
     while (vertex != m_source && vertex != m_target && vertex->m_excess_flow > 0)
     {
-        edge = get_positive_residual_edge(vertex);
+        edge = get_positive_residual_edge(vertex);       
 
         if (edge != nullptr)
             push(vertex, edge);
@@ -111,7 +112,10 @@ int Goldberg_flow::get_max_flow()
 
         vertex = get_max_excess_flow_vertex();
     }
-    
+
+#ifndef NDEBUG
+    std::printf("finish\n");
+#endif
 
     return 0;
 }
@@ -124,6 +128,10 @@ void Goldberg_flow::init()
 {
     m_source->m_height = number_of_vertices();
     test_height_limit();
+
+#ifndef NDEBUG
+    std::printf("init\n");
+#endif
 
     int flow = 0;
     for (auto edge : m_source->m_edges){
@@ -163,32 +171,60 @@ Vertex* Goldberg_flow::get_max_excess_flow_vertex()
  * Finds edge with positive residual.
  * If there aren't any, then returns null.
  * 
- * @return {Edge*}  : Edge with positive residual
+ * @param  {Vertex*} vertex : Vertex where the edge comes from
+ * @return {Edge*}          : Edge with positive residual
  */
 Edge* Goldberg_flow::get_positive_residual_edge(Vertex* vertex) 
 {
     int residual = 0, height_diff = 0;
     for(auto e : vertex->m_edges){
         residual = e->get_residual(vertex);
-        height_diff = e->m_start->m_height - e->m_end->m_height;
+        height_diff = vertex->m_height - e->get_another_vertex(vertex)->m_height;
         if (residual > 0 && height_diff > 1)
             return e;
     }
     return nullptr;
 }
 
+/**
+ * Push flow from overflowing vertex along the edge
+ * 
+ * @param  {Vertex*} vertex : Overflowing vertex
+ * @param  {Edge*} edge     : Edge along which will be pushed the flow
+ */
 void Goldberg_flow::push(Vertex* vertex, Edge* edge) 
 {
-    int e_flow = std::min(edge->m_start->m_excess_flow, edge->get_residual(vertex));
-    edge->m_flow += e_flow;
-    edge->m_reverse_flow -= e_flow;
-    edge->m_start->m_excess_flow -= e_flow;
-    edge->m_end->m_excess_flow += e_flow;
-}
+    int flow = std::min(edge->m_start->m_excess_flow, edge->get_residual(vertex));
+    flow = edge->is_outgoing(vertex)? flow : -flow;
+    Vertex* target = edge->get_another_vertex(vertex);
 
+#ifndef NDEBUG
+    std::printf("push: from %d to %d flow %d\n", vertex->m_ID, target->m_ID, flow);
+#endif
+
+    edge->m_flow += flow;
+    edge->m_reverse_flow -= flow;
+    
+    vertex->m_excess_flow -= flow;
+    target->m_excess_flow += flow;
+
+    test_excess_flow();
+    test_flow();
+}
+/**
+ *  Relabel vertex 
+ * 
+ * @param  {Vertex*} vertex : Given vertex
+ */
 void Goldberg_flow::relable(Vertex* vertex)
 {
+#ifndef NDEBUG
+    std::printf("relable: vertex %d of height %d\n", vertex->m_ID, vertex->m_height);
+#endif
+
     vertex->m_height += 1;
+    test_height_diff();
+    test_height_limit();
 }
 
 #ifndef NDEBUG
