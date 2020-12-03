@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <functional>
 #include <utility>
+#include <algorithm>
 
 //#define NDEBUG
 
@@ -49,9 +50,9 @@ private:
 
     void init();
     Vertex* get_max_excess_flow_vertex();
-    Edge* get_positive_residual_edge();
-    void push (Edge& edge);
-    void relable (Vertex& vertex);
+    Edge* get_positive_residual_edge(Vertex* vertex);
+    void push (Vertex* vertex, Edge* edge);
+    void relable (Vertex* vertex);
 };
 /**
  * initialization constructor
@@ -88,21 +89,25 @@ void Goldberg_flow::add_edge(int from, int to, int capacity)
     m_vertices[to].m_edges.push_back(&m_edges[edge]);
 }
 
-
+/**
+ * Find the maximum flow and returns it
+ * 
+ * @return {int}  : The possible maximum flow
+ */
 int Goldberg_flow::get_max_flow() 
 {
     init();
     Vertex* vertex = get_max_excess_flow_vertex();
-    Edge* edge;
+    Edge* edge;    
 
     while (vertex != m_source && vertex != m_target && vertex->m_excess_flow > 0)
     {
-        edge = get_positive_residual_edge();
+        edge = get_positive_residual_edge(vertex);
 
         if (edge != nullptr)
-            push(*edge);
+            push(vertex, edge);
         else
-            relable(*vertex);
+            relable(vertex);
 
         vertex = get_max_excess_flow_vertex();
     }
@@ -137,10 +142,16 @@ void Goldberg_flow::init()
     test_height_diff();
 }
 
+/**
+ * Finds vertex with the maximum excess flow.
+ * If there aren't any, then returns null.
+ * 
+ * @return {Vertex*}  : Vertex with the maximum excess flow
+ */
 Vertex* Goldberg_flow::get_max_excess_flow_vertex() 
 {
     Vertex* max = &m_vertices[0];
-    for(auto &vertex: m_vertices){
+    for(auto& vertex: m_vertices){
         if (vertex.m_excess_flow > max->m_excess_flow)
             max = &vertex;
     }
@@ -148,26 +159,36 @@ Vertex* Goldberg_flow::get_max_excess_flow_vertex()
     return max;
 }
 
-Edge* Goldberg_flow::get_positive_residual_edge() 
+/**
+ * Finds edge with positive residual.
+ * If there aren't any, then returns null.
+ * 
+ * @return {Edge*}  : Edge with positive residual
+ */
+Edge* Goldberg_flow::get_positive_residual_edge(Vertex* vertex) 
 {
     int residual = 0, height_diff = 0;
-    for(auto &e : m_edges){
-        residual = e.second.m_capacity - e.second.m_flow;
-        height_diff = e.second.m_start->m_height - e.second.m_end->m_height;
+    for(auto e : vertex->m_edges){
+        residual = e->get_residual(vertex);
+        height_diff = e->m_start->m_height - e->m_end->m_height;
         if (residual > 0 && height_diff > 1)
-            return &e.second;
+            return e;
     }
     return nullptr;
 }
 
-void Goldberg_flow::push(Edge& edge) 
+void Goldberg_flow::push(Vertex* vertex, Edge* edge) 
 {
-    
+    int e_flow = std::min(edge->m_start->m_excess_flow, edge->get_residual(vertex));
+    edge->m_flow += e_flow;
+    edge->m_reverse_flow -= e_flow;
+    edge->m_start->m_excess_flow -= e_flow;
+    edge->m_end->m_excess_flow += e_flow;
 }
 
-void Goldberg_flow::relable(Vertex& vertex) 
+void Goldberg_flow::relable(Vertex* vertex)
 {
-    
+    vertex->m_height += 1;
 }
 
 #ifndef NDEBUG

@@ -22,6 +22,7 @@ public:
    Vertex* get_end() const {return m_end;}
    bool is_outgoing(const Vertex* v) const { return m_start == v; }
    int get_flow(const Vertex* v) const {return is_outgoing(v)? m_flow : m_reverse_flow; }
+   int get_residual(const Vertex* v) const {return is_outgoing(v)? m_capacity - m_flow : m_capacity + m_reverse_flow; }
    int get_capacity() const {return m_capacity;}
 };
 

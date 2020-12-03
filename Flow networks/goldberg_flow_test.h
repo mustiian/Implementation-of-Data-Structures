@@ -20,7 +20,7 @@ void Goldberg_flow::test_height_diff()
 {
     int residual = 0;
     for(const auto& e : m_edges){
-        residual = e.second.get_capacity() - e.second.get_flow(e.second.m_start);
+        residual = e.second.get_residual(e.second.m_start);
         if (residual > 0){
             assert((e.second.get_start()->get_height() - e.second.get_end()->get_height()) <= 1);
         }
