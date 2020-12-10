@@ -13,7 +13,8 @@ private:
     const int m_ID;
     int m_height;
     int m_excess_flow;
-    std::vector<Edge*> m_edges;
+    std::vector<Edge*> m_out_edges;
+    std::vector<Edge*> m_in_edges;
 
     static int vertex_number;
 public:
