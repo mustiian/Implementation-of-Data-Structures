@@ -64,7 +64,7 @@ void Golberg_flow_tester::random_graph(int vertices, int max_capacity)
     {
         for (int j = 1; j <= vertices; j++)
         {
-            if (i == j ||g.edge_exist(i, j))
+            if (i == j || g.edge_exists(i, j))
                 continue;
 
             float p = (float)random.next_range(100) / 100;

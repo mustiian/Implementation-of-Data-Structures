@@ -2,6 +2,7 @@
 #define __VERTEX__
 
 #include <vector>
+#include <list>
 
 class Edge;
 class Goldberg_flow;
@@ -15,6 +16,8 @@ private:
     int m_excess_flow;
     std::vector<Edge*> m_out_edges;
     std::vector<Edge*> m_in_edges;
+
+    std::list<Vertex*>::iterator m_overflowed_iterator;
 
     static int vertex_number;
 public:

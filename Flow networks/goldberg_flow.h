@@ -31,7 +31,7 @@ public:
     int get_max_flow();
     int number_of_edges()const{return m_edges.size();}
     int number_of_vertices()const{return m_vertices.size() - 1;}
-    bool edge_exist(int from, int to) const{
+    bool edge_exists(int from, int to) const{
         auto edge = std::make_pair(from, to);
         return m_edges.find(edge) != m_edges.end();
         }
@@ -53,6 +53,8 @@ private:
     Vertex *m_source, *m_target;
     std::vector<Vertex> m_vertices;
     std::unordered_map<std::pair<int, int>, Edge, int_pair_hash> m_edges;
+    std::vector<std::list<Vertex*>> m_overflowed;
+    int m_height_overflowed;
 
     void init();
     Vertex* get_max_excess_flow_vertex();
