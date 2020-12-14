@@ -239,8 +239,8 @@ void Goldberg_flow::push(Vertex* vertex, Edge* edge)
     vertex->m_excess_flow -= flow;
     target->m_excess_flow += flow;
 
-    fix_excessflow(vertex);
     fix_excessflow(target);
+    fix_excessflow(vertex);
 
 #ifndef NDEBUG
     std::printf("push: from %d to %d actual flow %d, flow %d ", vertex->m_ID, target->m_ID, actual_flow, flow); 
