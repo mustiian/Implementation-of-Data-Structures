@@ -16,15 +16,15 @@ private:
     int m_excess_flow;
     std::vector<Edge*> m_out_edges;
     std::vector<Edge*> m_in_edges;
-
-    std::list<Vertex*>::iterator m_overflowed_iterator;
+    bool m_excessflow_inserted;
+    std::list<Vertex*>::iterator m_excessflow_iterator;
 
     static int vertex_number;
 public:
     Vertex() : 
-        m_ID(vertex_number++), m_height(0), m_excess_flow(0){}
+        m_ID(vertex_number++), m_height(0), m_excess_flow(0), m_excessflow_inserted(false) {}
     Vertex(int height) : 
-        m_ID(vertex_number++), m_height(height), m_excess_flow(0){}
+        m_ID(vertex_number++), m_height(height), m_excess_flow(0), m_excessflow_inserted(false) {}
 
     int get_height() const {return m_height;}
     int get_excess_flow() const {return m_excess_flow;}

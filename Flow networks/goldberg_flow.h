@@ -53,8 +53,8 @@ private:
     Vertex *m_source, *m_target;
     std::vector<Vertex> m_vertices;
     std::unordered_map<std::pair<int, int>, Edge, int_pair_hash> m_edges;
-    std::vector<std::list<Vertex*>> m_overflowed;
-    int m_height_overflowed;
+    std::vector<std::list<Vertex*>> m_excessflow;
+    int m_height_excessflow;
 
     void init();
     Vertex* get_max_excess_flow_vertex();
@@ -62,6 +62,10 @@ private:
     void push (Vertex* vertex, Edge* edge);
     void relable (Vertex* vertex);
     int count_max_flow();
+    void print_excessflow(int height);
+
+    void fix_excessflow(Vertex* vertex);
+    void insert_excessflow_vertex(Vertex* vertex);
 };
 /**
  * initialization constructor
@@ -72,7 +76,7 @@ private:
  * @param  {int} target   : Index of target vertex
  */
 Goldberg_flow::Goldberg_flow(int vertices, int source, int target) : 
-        m_vertices(vertices + 1) 
+        m_vertices(vertices + 1), m_excessflow(2 * vertices), m_height_excessflow(0)
 {
     m_source = &m_vertices[source];
     m_target = &m_vertices[target];
@@ -80,8 +84,6 @@ Goldberg_flow::Goldberg_flow(int vertices, int source, int target) :
 
 Goldberg_flow::~Goldberg_flow() 
 {
-    m_vertices.clear();
-    m_edges.clear();
     Vertex::vertex_number = 0;
 }
 
@@ -158,12 +160,19 @@ void Goldberg_flow::init()
         edge->m_reverse_flow -= flow;
         edge->m_end->m_excess_flow += flow; 
         edge->m_start->m_excess_flow -= flow; 
+        insert_excessflow_vertex(edge->m_end);
+        edge->m_end->m_excessflow_inserted = true;
+
 #ifndef NDEBUG
     std::printf("push: from %d to %d flow %d ", m_source->m_ID, edge->m_end->m_ID, flow); 
     std::printf("| new flow %d, new rev flow %d\t", edge->m_flow, edge->m_reverse_flow);
     std::printf("| capacity %d\n", edge->m_capacity);
-#endif        
+#endif  
     }
+
+#ifndef NDEBUG
+    print_excessflow(0);
+#endif 
 
     test_excess_flow();
     test_flow();
@@ -178,17 +187,10 @@ void Goldberg_flow::init()
  */
 Vertex* Goldberg_flow::get_max_excess_flow_vertex() 
 {
-    Vertex* max = nullptr;
-    int max_excess = 0;
-    for(auto& vertex: m_vertices){
-        if (vertex != *m_source && vertex != *m_target)
-            if (vertex.m_excess_flow > max_excess){
-                max = &vertex;
-                max_excess = vertex.m_excess_flow;
-            }
-    }
+    if (m_excessflow[m_height_excessflow].size() == 0)
+        return nullptr;
 
-    return max;
+    return m_excessflow[m_height_excessflow].back();
 }
 
 /**
@@ -237,10 +239,15 @@ void Goldberg_flow::push(Vertex* vertex, Edge* edge)
     vertex->m_excess_flow -= flow;
     target->m_excess_flow += flow;
 
+    fix_excessflow(vertex);
+    fix_excessflow(target);
+
 #ifndef NDEBUG
     std::printf("push: from %d to %d actual flow %d, flow %d ", vertex->m_ID, target->m_ID, actual_flow, flow); 
-    std::printf("| new flow %d, new rev flow %d\t", edge->m_flow, edge->m_reverse_flow);
+    std::printf("| new flow %d, source height %d\t", edge->m_flow, vertex->m_height);
     std::printf("| capacity %d\n", edge->m_capacity);
+    print_excessflow(vertex->m_height);
+    print_excessflow(target->m_height);
 #endif
 
     test_excess_flow();
@@ -253,10 +260,17 @@ void Goldberg_flow::push(Vertex* vertex, Edge* edge)
  */
 void Goldberg_flow::relable(Vertex* vertex)
 {
+    m_excessflow[vertex->m_height].erase(vertex->m_excessflow_iterator);
     vertex->m_height += 1;
+    insert_excessflow_vertex(vertex);
+
+    if (vertex->m_height > m_height_excessflow)
+        m_height_excessflow = vertex->m_height;
 
 #ifndef NDEBUG
     std::printf("relable: vertex %d, new height %d\n", vertex->m_ID, vertex->m_height);
+    print_excessflow(vertex->m_height - 1);
+    print_excessflow(vertex->m_height);
 #endif
 
     test_height_diff();
@@ -277,6 +291,69 @@ int Goldberg_flow::count_max_flow()
     }
 
     return flow;
+}
+
+void Goldberg_flow::print_excessflow(int height) 
+{
+    std::printf("Height %d: ", height);
+
+    if (m_excessflow[height].size() != 0){
+        for (auto v = m_excessflow[height].begin(); v != m_excessflow[height].end(); v++)
+            std::printf ("%d, ", (*v)->m_ID);
+    }
+   
+    std::printf("\n");
+}
+
+void Goldberg_flow::fix_excessflow(Vertex* vertex) 
+{
+    if (vertex == m_source || vertex == m_target)
+        return;
+
+    int h = vertex->m_height;
+    if (vertex->m_excess_flow == 0){
+        vertex->m_excessflow_iterator = m_excessflow[h].erase(vertex->m_excessflow_iterator);
+        vertex->m_excessflow_inserted = false;
+
+        while (m_excessflow[m_height_excessflow].size() == 0 && m_height_excessflow > 0)
+            m_height_excessflow--;
+    }
+    else {
+        if (vertex->m_excessflow_inserted == false){
+            insert_excessflow_vertex(vertex);
+            vertex->m_excessflow_inserted = true;
+        }
+        else{
+            m_excessflow[h].erase(vertex->m_excessflow_iterator);
+            insert_excessflow_vertex(vertex);
+        }
+    }
+}
+
+void Goldberg_flow::insert_excessflow_vertex(Vertex* vertex) 
+{
+    int h = vertex->m_height;
+    auto iter = m_excessflow[h].begin();
+    int inc = 0;
+
+    if (m_excessflow[h].size() == 0){
+        vertex->m_excessflow_iterator = m_excessflow[h].insert(m_excessflow[h].begin(), vertex);
+        return;
+    }
+
+    for (auto i = m_excessflow[h].begin(); i != m_excessflow[h].end(); i++)
+    {
+        if ((*i)->m_excess_flow < vertex->m_excess_flow){
+            iter = i;
+            inc++;
+        }
+        else break;
+    }
+
+    if (inc == m_excessflow[h].size())
+        iter = m_excessflow[h].end();
+
+    vertex->m_excessflow_iterator = m_excessflow[h].insert(iter, vertex);
 }
 
 #ifndef NDEBUG
