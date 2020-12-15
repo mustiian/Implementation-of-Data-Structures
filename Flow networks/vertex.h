@@ -14,10 +14,10 @@ private:
     const int m_ID;
     int m_height;
     int m_excess_flow;
-    std::vector<Edge*> m_out_edges;
-    std::vector<Edge*> m_in_edges;
+    std::vector<Edge*> m_edges;
     bool m_excessflow_inserted;
     std::list<Vertex*>::iterator m_excessflow_iterator;
+    std::list<Edge*> m_unsaturated_edges;
 
     static int vertex_number;
 public:

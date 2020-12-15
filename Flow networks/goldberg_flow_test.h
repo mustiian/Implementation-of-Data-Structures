@@ -157,14 +157,12 @@ void Goldberg_flow::test_excess_flow()
 {
     for(const Vertex& vertex : m_vertices){      
         int e_flow = 0;
-        for (const auto& edge : vertex.m_in_edges)
+        for (const auto& edge : vertex.m_edges)
         {
-            e_flow += edge->get_flow(edge->m_start);
-        }
-        
-        for (const auto& edge : vertex.m_out_edges)
-        {
-            e_flow -= edge->get_flow(edge->m_start);
+            if (edge->is_outgoing(&vertex))
+                e_flow += edge->get_flow(edge->m_start);
+            else
+                e_flow += edge->get_flow(edge->m_end);
         }
 
         if (vertex != *m_source){

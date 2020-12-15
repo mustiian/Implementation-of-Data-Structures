@@ -11,6 +11,8 @@ private:
     int m_flow;
     int m_reverse_flow;
     int m_capacity;
+
+    std::list<Vertex*>::iterator m_unsaturated_iterator;
 public:
     Edge() : m_start(nullptr), m_end(nullptr), m_flow(0), 
             m_reverse_flow(0), m_capacity(0) {}
