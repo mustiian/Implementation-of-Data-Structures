@@ -21,6 +21,7 @@ public:
     void test_random();
     void simple_graph_1();
     void simple_graph_2();
+    void simple_graph_3();
 };
 
 bool Golberg_flow_tester::is_target_reachable(Goldberg_flow& g) const
@@ -69,7 +70,7 @@ void Golberg_flow_tester::random_graph(int vertices, int max_capacity)
 
             float p = (float)random.next_range(100) / 100;
             if (probability < p){
-                unsigned int capacity = (1 + random.next_range(max_capacity)) % max_capacity;
+                unsigned int capacity = (random.next_range(max_capacity) % max_capacity) + 1;
                 g.add_edge(i, j, capacity);
             }
         }
@@ -119,6 +120,22 @@ void Golberg_flow_tester::simple_graph_2()
 
     assert (is_target_reachable(g));
     assert(g.get_max_flow() == 8);
+}
+
+void Golberg_flow_tester::simple_graph_3() 
+{
+    Goldberg_flow g (6, 1, 6);
+    g.add_edge(1, 2, 15);
+    g.add_edge(1, 3, 4);
+    g.add_edge(2, 4, 12);
+    g.add_edge(3, 5, 10);
+    g.add_edge(4, 6, 7);
+    g.add_edge(5, 6, 10);
+    g.add_edge(4, 3, 3);
+    g.add_edge(5, 2, 5);
+
+    assert (is_target_reachable(g));
+    assert(g.get_max_flow() == 14);
 }
 
 
@@ -179,6 +196,14 @@ void Goldberg_flow::test_flow()
         flow = e.second.get_flow(e.second.m_start);
         assert(0 <= flow && flow <= e.second.get_capacity());
     }
+}
+
+void Goldberg_flow::test_edge(int from, int to, int capacity) 
+{
+    assert(capacity > 0);
+    assert(from != to);
+    assert(from > 0 && from < m_vertices.size());
+    assert(to > 0 && to < m_vertices.size());
 }
 
 #endif // NDEBUG

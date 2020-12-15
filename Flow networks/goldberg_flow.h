@@ -31,22 +31,21 @@ public:
     int get_max_flow();
     int number_of_edges()const{return m_edges.size();}
     int number_of_vertices()const{return m_vertices.size() - 1;}
-    bool edge_exists(int from, int to) const{
-        auto edge = std::make_pair(from, to);
-        return m_edges.find(edge) != m_edges.end();
-        }
-    const std::vector<Edge*>& vertex_neighbours(int vertex) { return m_vertices[vertex].m_out_edges;}
+    bool edge_exists(int from, int to)const;
+    const std::vector<Edge*>& vertex_neighbours(int vertex) {return m_vertices[vertex].m_out_edges;}
     
 #ifndef NDEBUG
     void test_height_diff();
     void test_excess_flow();
     void test_height_limit();
     void test_flow();
+    void test_edge(int from, int to, int capacity);
 #else
     void test_height_diff(){}
     void test_excess_flow(){}
     void test_height_limit(){}
     void test_flow(){}
+    void test_edge(int from, int to, int capacity){}
 #endif
 
 private:
@@ -98,6 +97,10 @@ void Goldberg_flow::add_edge(int from, int to, int capacity)
 {
     auto edge = std::make_pair(from, to);
 
+#ifndef NDEBUG
+    test_edge(from, to, capacity);
+#endif
+
     if (m_edges.find(edge) != m_edges.end())
         return;
 
@@ -139,6 +142,12 @@ int Goldberg_flow::get_max_flow()
     return count_max_flow();
 }
 
+bool Goldberg_flow::edge_exists(int from, int to) const
+{
+    auto edge = std::make_pair(from, to);
+    return m_edges.find(edge) != m_edges.end();
+}
+
 /**
  * Initialization of Goldberg flow algorithm
  * 
@@ -160,8 +169,7 @@ void Goldberg_flow::init()
         edge->m_reverse_flow -= flow;
         edge->m_end->m_excess_flow += flow; 
         edge->m_start->m_excess_flow -= flow; 
-        insert_excessflow_vertex(edge->m_end);
-        edge->m_end->m_excessflow_inserted = true;
+        fix_excessflow(edge->m_end);
 
 #ifndef NDEBUG
     std::printf("push: from %d to %d flow %d ", m_source->m_ID, edge->m_end->m_ID, flow); 
