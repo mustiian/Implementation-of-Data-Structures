@@ -314,7 +314,7 @@ void Goldberg_flow::print_unsaturated(Vertex* vertex)
 
     if (vertex->m_unsaturated.size() != 0){
         for (auto edge : vertex->m_unsaturated)
-            std::printf ("%d, ", edge.second->get_another_vertex(vertex)->m_ID);
+            std::printf ("%d->%d, ", edge.first.first, edge.first.second);
     }
    
     std::printf("\n");
@@ -374,12 +374,13 @@ void Goldberg_flow::insert_excessflow_vertex(Vertex* vertex)
 void Goldberg_flow::fix_unsaturated(Edge* edge, Vertex* vertex) 
 {
     auto e = std::make_pair(edge->m_start->m_ID, edge->m_end->m_ID);
+
     Vertex* another_vertex = edge->get_another_vertex(vertex);
     int height_diff = vertex->m_height - another_vertex->m_height,
         residual = edge->get_residual(vertex);
 
     // Residual is zero => erase the edge from the map
-    if (residual == 0 && edge->m_unsaturated_inserted){
+    if ((residual <= 0 || height_diff <= 0) && edge->m_unsaturated_inserted){
         vertex->m_unsaturated.erase(e);
         edge->m_unsaturated_inserted = false;
     }
