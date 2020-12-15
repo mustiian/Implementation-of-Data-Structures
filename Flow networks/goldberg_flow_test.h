@@ -160,10 +160,12 @@ void Goldberg_flow::test_excess_flow()
         for (const auto& edge : vertex.m_edges)
         {
             if (edge->is_outgoing(&vertex))
-                e_flow += edge->get_flow(edge->m_start);
+                e_flow -= edge->get_flow(edge->m_start);
             else
-                e_flow += edge->get_flow(edge->m_end);
+                e_flow += edge->get_flow(edge->m_start);
         }
+
+        
 
         if (vertex != *m_source){
             assert(vertex.get_excess_flow() >= 0);    
