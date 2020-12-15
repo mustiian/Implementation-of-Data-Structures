@@ -3,9 +3,19 @@
 
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 class Edge;
 class Goldberg_flow;
+
+struct int_pair_hash {
+    std::size_t operator () (const std::pair<int,int> &p) const {
+        auto h1 = std::hash<int>{}(p.first);
+        auto h2 = std::hash<int>{}(p.second);
+
+        return h1 ^ h2;  
+    }
+};
 
 class Vertex
 {
@@ -17,8 +27,7 @@ private:
     std::vector<Edge*> m_edges;
     bool m_excessflow_inserted;
     std::list<Vertex*>::iterator m_excessflow_iterator;
-    std::list<Edge*> m_unsaturated_edges;
-
+    std::unordered_map<std::pair<int, int>, Edge*, int_pair_hash> m_unsaturated;
     static int vertex_number;
 public:
     Vertex() : 

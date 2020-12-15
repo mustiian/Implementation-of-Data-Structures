@@ -3,22 +3,13 @@
 
 #include "vertex.h"
 #include "edge.h"
-#include <unordered_map>
+
 #include <functional>
 #include <utility>
 #include <algorithm>
 #include <cstdio>
 
 //#define NDEBUG
-
-struct int_pair_hash {
-    std::size_t operator () (const std::pair<int,int> &p) const {
-        auto h1 = std::hash<int>{}(p.first);
-        auto h2 = std::hash<int>{}(p.second);
-
-        return h1 ^ h2;  
-    }
-};
 
 class Goldberg_flow
 {
@@ -64,10 +55,15 @@ private:
     void push (Vertex* vertex, Edge* edge);
     void relable (Vertex* vertex);
     int count_max_flow();
+// Debug
     void print_excessflow(int height);
+    void print_unsaturated(Vertex* vertex);
 
     void fix_excessflow(Vertex* vertex);
     void insert_excessflow_vertex(Vertex* vertex);
+    void fix_unsaturated(Edge* edge, Vertex* vertex);
+    void insert_unsaturated_edge(Edge* edge, Vertex* vertex);
+    void update_unsaturated_edges(Vertex* vertex);
 };
 /**
  * initialization constructor
@@ -122,7 +118,7 @@ int Goldberg_flow::get_max_flow()
 {
     init();
     Vertex* vertex = get_max_excess_flow_vertex();
-    Edge* edge;    
+    Edge* edge;  
 
     while (vertex != nullptr && vertex->m_excess_flow > 0)
     {
@@ -175,6 +171,7 @@ void Goldberg_flow::init()
             edge->m_end->m_excess_flow += flow; 
             edge->m_start->m_excess_flow -= flow; 
             fix_excessflow(edge->m_end);
+
 #ifndef NDEBUG
             std::printf("push: from %d to %d flow %d ", m_source->m_ID, edge->m_end->m_ID, flow); 
             std::printf("| new flow %d, new rev flow %d\t", edge->m_flow, edge->m_reverse_flow);
@@ -215,15 +212,11 @@ Vertex* Goldberg_flow::get_max_excess_flow_vertex()
  */
 Edge* Goldberg_flow::get_positive_residual_edge(Vertex* vertex) 
 {
-    int residual = 0, height_diff = 0;
-    for(auto e : vertex->m_edges){
-        residual = e->get_residual(vertex);
-        height_diff = vertex->m_height - e->get_another_vertex(vertex)->m_height;
-        if (residual > 0 && height_diff > 0 && 
-            (e->is_outgoing(vertex) || e->get_flow(vertex) != 0))
-            return e;
+    int height_diff = 0;
+    for(auto e : vertex->m_unsaturated){
+        if (e.second->is_outgoing(vertex) || e.second->get_flow(vertex) != 0)
+            return e.second;
     }
-
     return nullptr;
 }
 
@@ -250,13 +243,13 @@ void Goldberg_flow::push(Vertex* vertex, Edge* edge)
 
     fix_excessflow(target);
     fix_excessflow(vertex);
+    fix_unsaturated(edge, vertex);
 
 #ifndef NDEBUG
     std::printf("push: from %d to %d actual flow %d, flow %d ", vertex->m_ID, target->m_ID, actual_flow, flow); 
     std::printf("| new flow %d, source height %d\t", edge->m_flow, vertex->m_height);
     std::printf("| capacity %d\n", edge->m_capacity);
-    print_excessflow(vertex->m_height);
-    print_excessflow(target->m_height);
+    print_unsaturated(vertex);
 #endif
 
     test_excess_flow();
@@ -276,10 +269,10 @@ void Goldberg_flow::relable(Vertex* vertex)
     if (vertex->m_height > m_height_excessflow)
         m_height_excessflow = vertex->m_height;
 
+    update_unsaturated_edges(vertex);
 #ifndef NDEBUG
     std::printf("relable: vertex %d, new height %d\n", vertex->m_ID, vertex->m_height);
-    print_excessflow(vertex->m_height - 1);
-    print_excessflow(vertex->m_height);
+    print_unsaturated(vertex);
 #endif
 
     test_height_diff();
@@ -310,6 +303,18 @@ void Goldberg_flow::print_excessflow(int height)
     if (m_excessflow[height].size() != 0){
         for (auto v = m_excessflow[height].begin(); v != m_excessflow[height].end(); v++)
             std::printf ("%d, ", (*v)->m_ID);
+    }
+   
+    std::printf("\n");
+}
+
+void Goldberg_flow::print_unsaturated(Vertex* vertex) 
+{
+    std::printf("Unsaturated edges from %d to vertices: ", vertex->m_ID);
+
+    if (vertex->m_unsaturated.size() != 0){
+        for (auto edge : vertex->m_unsaturated)
+            std::printf ("%d, ", edge.second->get_another_vertex(vertex)->m_ID);
     }
    
     std::printf("\n");
@@ -364,6 +369,46 @@ void Goldberg_flow::insert_excessflow_vertex(Vertex* vertex)
         iter = m_excessflow[h].end();
 
     vertex->m_excessflow_iterator = m_excessflow[h].insert(iter, vertex);
+}
+
+void Goldberg_flow::fix_unsaturated(Edge* edge, Vertex* vertex) 
+{
+    auto e = std::make_pair(edge->m_start->m_ID, edge->m_end->m_ID);
+    Vertex* another_vertex = edge->get_another_vertex(vertex);
+    int height_diff = vertex->m_height - another_vertex->m_height,
+        residual = edge->get_residual(vertex);
+
+    // Residual is zero => erase the edge from the map
+    if (residual == 0 && edge->m_unsaturated_inserted){
+        vertex->m_unsaturated.erase(e);
+        edge->m_unsaturated_inserted = false;
+    }
+    else if (residual > 0 && height_diff > 0){
+        // New edge => insert to the map
+        if(!edge->m_unsaturated_inserted){
+            insert_unsaturated_edge(edge, vertex);
+            edge->m_unsaturated_inserted = true;
+        }
+        // Another vertex has the edge => erase the edge and insert to vertex map
+        else if (another_vertex->m_unsaturated.find(e) != another_vertex->m_unsaturated.end()){
+            another_vertex->m_unsaturated.erase(e);
+            insert_unsaturated_edge(edge, vertex);
+        }
+    }     
+}
+
+void Goldberg_flow::insert_unsaturated_edge(Edge* edge, Vertex* vertex) 
+{
+    auto e = std::make_pair(edge->m_start->m_ID, edge->m_end->m_ID);
+    vertex->m_unsaturated[e] = edge;
+}
+
+void Goldberg_flow::update_unsaturated_edges(Vertex* vertex) 
+{
+    for (auto edge : vertex->m_edges)
+    {
+        fix_unsaturated(edge, vertex);
+    }
 }
 
 #ifndef NDEBUG
