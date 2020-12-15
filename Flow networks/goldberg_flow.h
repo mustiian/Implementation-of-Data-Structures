@@ -218,11 +218,12 @@ Edge* Goldberg_flow::get_positive_residual_edge(Vertex* vertex)
     int residual = 0, height_diff = 0;
     for(auto e : vertex->m_edges){
         residual = e->get_residual(vertex);
-        height_diff = vertex->m_height - e->m_end->m_height;
+        height_diff = vertex->m_height - e->get_another_vertex(vertex)->m_height;
         if (residual > 0 && height_diff > 0 && 
             (e->is_outgoing(vertex) || e->get_flow(vertex) != 0))
             return e;
     }
+
     return nullptr;
 }
 
