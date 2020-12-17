@@ -165,8 +165,6 @@ void Goldberg_flow::test_excess_flow()
                 e_flow += edge->get_flow(edge->m_start);
         }
 
-        
-
         if (vertex != *m_source){
             assert(vertex.get_excess_flow() >= 0);    
             assert(vertex.get_excess_flow() == e_flow);    

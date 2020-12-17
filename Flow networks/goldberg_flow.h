@@ -247,7 +247,7 @@ void Goldberg_flow::push(Vertex* vertex, Edge* edge)
 
 #ifndef NDEBUG
     std::printf("push: from %d to %d actual flow %d, flow %d ", vertex->m_ID, target->m_ID, actual_flow, flow); 
-    std::printf("| new flow %d, source height %d\t", edge->m_flow, vertex->m_height);
+    std::printf("| new flow %d, source ex_flow %d\t", edge->m_flow, vertex->m_excess_flow);
     std::printf("| capacity %d\n", edge->m_capacity);
     print_unsaturated(vertex);
 #endif
@@ -382,6 +382,7 @@ void Goldberg_flow::fix_unsaturated(Edge* edge, Vertex* vertex)
     // Residual is zero => erase the edge from the map
     if ((residual <= 0 || height_diff <= 0) && edge->m_unsaturated_inserted){
         vertex->m_unsaturated.erase(e);
+        another_vertex->m_unsaturated.erase(e);
         edge->m_unsaturated_inserted = false;
     }
     else if (residual > 0 && height_diff > 0){
