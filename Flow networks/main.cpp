@@ -1,8 +1,10 @@
-#include "goldberg_flow.h"
+#include "goldberg_flow_test.h"
 
 int main()
 {
     Golberg_flow_tester t(40);
+
+    t.random_graph_1();
 
     t.simple_graph_1();
     t.simple_graph_2();

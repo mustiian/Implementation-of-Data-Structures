@@ -24,7 +24,7 @@ public:
     int number_of_vertices()const{return m_vertices.size() - 1;}
     bool edge_exists(int from, int to)const;
     const std::vector<Edge*>& vertex_neighbours(int vertex) {return m_vertices[vertex].m_edges;}
-
+    void print_graph();
 // Tests  
 #ifndef NDEBUG
     void test_height_diff();
@@ -147,6 +147,14 @@ bool Goldberg_flow::edge_exists(int from, int to) const
     return m_edges.find(edge) != m_edges.end();
 }
 
+void Goldberg_flow::print_graph() 
+{
+    for (auto& e : m_edges)
+    {
+        printf("%d %d %d\n", e.second.m_start->m_ID, e.second.m_end->m_ID, e.second.m_capacity);
+    }
+}
+
 /**
  * Initialization of Goldberg flow algorithm
  * 
@@ -212,11 +220,20 @@ Vertex* Goldberg_flow::get_max_excess_flow_vertex()
  */
 Edge* Goldberg_flow::get_positive_residual_edge(Vertex* vertex) 
 {
-    int height_diff = 0;
-    for(auto e : vertex->m_unsaturated){
-        if (e.second->is_outgoing(vertex) || e.second->get_flow(vertex) != 0)
-            return e.second;
-    }
+    if (vertex->m_unsaturated.size() == 0)
+        return nullptr;
+
+    return (vertex->m_unsaturated.begin())->second;
+
+    // int residual = 0, height_diff = 0;
+    // for(auto e : vertex->m_edges){
+    //     residual = e->get_residual(vertex);
+    //     height_diff = vertex->m_height - e->get_another_vertex(vertex)->m_height;
+    //     if (residual > 0 && height_diff > 0 && 
+    //         (e->is_outgoing(vertex) || e->get_flow(vertex) != 0))
+    //         return e;
+    // }
+
     return nullptr;
 }
 
