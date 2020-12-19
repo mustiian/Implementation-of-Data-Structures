@@ -38,6 +38,9 @@ bool Golberg_flow_tester::is_target_reachable(Goldberg_flow& g) const
         q.pop();
 
         for (const auto edge : g.vertex_neighbours(cur)){
+            if (edge->get_start()->get_ID() != cur)
+                continue;
+
             int neighbor = edge->get_end()->get_ID();
 
             if (neighbor == target)
@@ -160,18 +163,9 @@ void Golberg_flow_tester::random_graph_1()
     g.add_edge(8, 2, 34);
     g.add_edge(4, 2, 36);
     g.add_edge(1, 7, 41);
-    g.add_edge(2, 4, 14);
-    g.add_edge(5, 3, 13);
-    g.add_edge(7, 1, 3);
     g.add_edge(4, 1, 26);
     g.add_edge(2, 7, 23);
     g.add_edge(1, 4, 49);
-    g.add_edge(6, 3, 8);
-    g.add_edge(4, 3, 1);
-    g.add_edge(3, 4, 45);
-    g.add_edge(1, 6, 37);
-    g.add_edge(5, 2, 33);
-    g.add_edge(6, 1, 34);
     g.add_edge(10 ,8, 4);
     g.add_edge(8, 10, 7);
     g.add_edge(4, 6, 32);
@@ -187,26 +181,8 @@ void Golberg_flow_tester::random_graph_1()
     g.add_edge(8, 3, 41);
     g.add_edge(10 ,9, 9);
     g.add_edge(9, 10, 42);
-    g.add_edge(4, 7, 43);
-    g.add_edge(2, 1, 15);
-    g.add_edge(5, 6, 4);
-    g.add_edge(2, 6, 9);
-    g.add_edge(6, 2, 7);
-    g.add_edge(7, 3, 9);
-    g.add_edge(9, 4, 19);
-    g.add_edge(8, 5, 20);
-    g.add_edge(4, 9, 34);
-    g.add_edge(7, 10, 12);
-    g.add_edge(9, 7, 45);
-    g.add_edge(8, 6, 17);
-    g.add_edge(4, 10, 2);
-    g.add_edge(6, 8, 16);
-    g.add_edge(7, 9, 36);
-    g.add_edge(10 ,5, 28);
-    g.add_edge(8, 7, 50);
-    g.add_edge(5, 10, 40);
-    g.add_edge(6, 9, 38);
-    g.add_edge(7, 8, 1);
+
+    assert(is_target_reachable(g));
 
     g.get_max_flow();
 }
