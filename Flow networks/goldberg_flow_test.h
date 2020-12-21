@@ -78,8 +78,9 @@ void Golberg_flow_tester::random_graph(int vertices, int max_capacity)
             }
         }
     }
-    
+#ifndef NDEBUG
     g.print_graph();
+#endif
 
     if (is_target_reachable(g))
         g.get_max_flow();
@@ -149,7 +150,6 @@ void Golberg_flow_tester::random_graph_1()
 {
     Goldberg_flow g (10, 1, 10);
 
-    g.add_edge(10 ,6, 27);
     g.add_edge(8, 4, 41);
     g.add_edge(4, 8, 14);
     g.add_edge(5, 9, 44);
@@ -166,25 +166,22 @@ void Golberg_flow_tester::random_graph_1()
     g.add_edge(4, 1, 26);
     g.add_edge(2, 7, 23);
     g.add_edge(1, 4, 49);
-    g.add_edge(10 ,8, 4);
     g.add_edge(8, 10, 7);
     g.add_edge(4, 6, 32);
     g.add_edge(1, 3, 47);
     g.add_edge(5, 7, 45);
     g.add_edge(6, 4, 29);
     g.add_edge(7, 5, 47);
-    g.add_edge(10 ,3, 37);
     g.add_edge(1, 8, 22);
     g.add_edge(2, 10, 29);
     g.add_edge(1, 9, 23);
     g.add_edge(1, 10, 29);
     g.add_edge(8, 3, 41);
-    g.add_edge(10 ,9, 9);
     g.add_edge(9, 10, 42);
 
     assert(is_target_reachable(g));
 
-    g.get_max_flow();
+    assert(g.get_max_flow() == 129);
 }
 
 #ifndef NDEBUG

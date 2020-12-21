@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cstdio>
 
-//#define NDEBUG
+#define NDEBUG
 
 class Goldberg_flow
 {
@@ -304,9 +304,9 @@ void Goldberg_flow::relable(Vertex* vertex)
 int Goldberg_flow::count_max_flow() 
 {
     int flow = 0;
-    for (auto edge : m_source->m_edges)
+    for (auto edge : m_target->m_edges)
     {
-        if (edge->is_outgoing(m_source))
+        if (!edge->is_outgoing(m_target))
             flow += edge->m_flow;
     }
 
