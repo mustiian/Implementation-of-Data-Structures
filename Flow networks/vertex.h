@@ -8,8 +8,10 @@
 class Edge;
 class Goldberg_flow;
 
+using edge_pair = std::pair<int, int>;
+
 struct int_pair_hash {
-    std::size_t operator () (const std::pair<int,int> &p) const {
+    std::size_t operator () (const edge_pair &p) const {
         auto h1 = std::hash<int>{}(p.first);
         auto h2 = std::hash<int>{}(p.second);
 
@@ -27,7 +29,7 @@ private:
     std::vector<Edge*> m_edges;
     bool m_excessflow_inserted;
     std::list<Vertex*>::iterator m_excessflow_iterator;
-    std::unordered_map<std::pair<int, int>, Edge*, int_pair_hash> m_unsaturated;
+    std::unordered_map<edge_pair, Edge*, int_pair_hash> m_unsaturated;
     static int vertex_number;
 public:
     Vertex() : 

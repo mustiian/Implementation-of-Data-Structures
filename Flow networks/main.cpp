@@ -1,16 +1,22 @@
-#include "goldberg_flow_test.h"
+#include "goldberg_flow.h"
+#include <iostream>
 
-int main()
+int main(int argc, char const *argv[])
 {
-    Golberg_flow_tester t(40);
+    int vertices, edges, start, end, cap;
 
-    t.random_graph_1();
+    std::cin >> vertices >> edges >> start >> end;
 
-    t.simple_graph_1();
-    t.simple_graph_2();
-    t.simple_graph_3();
-    t.random_graph(10, 50);
-    t.test_random();
+    Goldberg_flow g(vertices, start, end);
+
+    for (int i = 0; i < edges; i++)
+    {
+        std::cin >> start >> end >> cap;
+        g.add_edge(start, end, cap);
+    }
+
+    std::cout << g.get_max_flow() << std::endl;
+    g.print_flow_edges();
 
     return 0;
 }

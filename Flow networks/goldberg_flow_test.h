@@ -111,6 +111,7 @@ void Golberg_flow_tester::simple_graph_1()
 
     assert (is_target_reachable(g));
     assert (g.get_max_flow() == 12);
+    g.print_flow_edges();
 }
 
 void Golberg_flow_tester::simple_graph_2() 
@@ -126,6 +127,7 @@ void Golberg_flow_tester::simple_graph_2()
 
     assert (is_target_reachable(g));
     assert(g.get_max_flow() == 8);
+    g.print_flow_edges();
 }
 
 void Golberg_flow_tester::simple_graph_3() 
@@ -144,6 +146,7 @@ void Golberg_flow_tester::simple_graph_3()
 
     assert (is_target_reachable(g));
     assert(g.get_max_flow() == 23);
+    g.print_flow_edges();
 }
 
 void Golberg_flow_tester::random_graph_1() 

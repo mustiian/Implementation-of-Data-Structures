@@ -25,6 +25,7 @@ public:
     bool edge_exists(int from, int to)const;
     const std::vector<Edge*>& vertex_neighbours(int vertex) {return m_vertices[vertex].m_edges;}
     void print_graph();
+    void print_flow_edges();
 // Tests  
 #ifndef NDEBUG
     void test_height_diff();
@@ -44,7 +45,7 @@ private:
 // Private Variables
     Vertex *m_source, *m_target;
     std::vector<Vertex> m_vertices;
-    std::unordered_map<std::pair<int, int>, Edge, int_pair_hash> m_edges;
+    std::unordered_map<edge_pair, Edge, int_pair_hash> m_edges;
     std::vector<std::list<Vertex*>> m_excessflow;
     int m_height_excessflow;
 
@@ -138,7 +139,7 @@ int Goldberg_flow::get_max_flow()
     std::printf("finish, max flow %d\n", max_flow);
 #endif
 
-    return count_max_flow();
+    return max_flow;
 }
 
 bool Goldberg_flow::edge_exists(int from, int to) const
@@ -152,6 +153,27 @@ void Goldberg_flow::print_graph()
     for (auto& e : m_edges)
     {
         printf("%d %d %d\n", e.second.m_start->m_ID, e.second.m_end->m_ID, e.second.m_capacity);
+    }
+}
+
+void Goldberg_flow::print_flow_edges()
+{
+    std::unordered_map<edge_pair, bool, int_pair_hash> used;
+
+    for (auto & edge : m_edges)
+    {
+        if (used.find(edge.first) != used.end() || edge.second.m_flow == 0)
+            continue;
+
+        auto edge_reverse =  m_edges.find(std::make_pair(edge.first.second, edge.first.first));
+        if (edge_reverse != m_edges.end()){
+            printf("%d %d %d\n", edge.first.first, edge.first.second, edge.second.m_flow - edge_reverse->second.m_flow);
+            used[edge_reverse->first] = true;
+        }
+        else{
+            printf("%d %d %d\n", edge.first.first, edge.first.second, edge.second.m_flow);
+        }
+        used[edge.first] = true;
     }
 }
 
