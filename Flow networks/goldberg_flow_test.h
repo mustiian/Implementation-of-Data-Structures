@@ -90,8 +90,8 @@ void Golberg_flow_tester::random_graph(int vertices, int max_capacity)
 
 void Golberg_flow_tester::test_random() 
 {
-    for (int v : {10, 20, 40, 50}){
-        for (int cap: {10, 50, 1000}){
+    for (int v : {100, 200, 400}){
+        for (int cap: {10, 50, 100}){
             printf("- Test vertices: %d, max capacity: %d\n", v, cap);
             random_graph(v, cap);
         }
@@ -146,7 +146,6 @@ void Golberg_flow_tester::simple_graph_3()
 
     assert (is_target_reachable(g));
     assert(g.get_max_flow() == 23);
-    g.print_flow_edges();
 }
 
 void Golberg_flow_tester::random_graph_1() 

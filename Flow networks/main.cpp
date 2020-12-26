@@ -1,7 +1,7 @@
 #include "goldberg_flow.h"
 #include <iostream>
 
-int main(int argc, char const *argv[])
+int main()
 {
     int vertices, edges, start, end, cap;
 
@@ -16,6 +16,7 @@ int main(int argc, char const *argv[])
     }
 
     std::cout << g.get_max_flow() << std::endl;
+    
     g.print_flow_edges();
 
     return 0;

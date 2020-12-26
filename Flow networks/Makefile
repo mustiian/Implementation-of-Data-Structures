@@ -1,6 +1,6 @@
 CXX=g++
-CXXFLAGS=-std=c++11 -O3 -no-pie -Wall -Wextra -g -Wno-sign-compare -pg
-OBJECTS=vertex.h edge.h goldberg_flow_test.h goldberg_flow.h main.cpp
+CXXFLAGS=-std=c++11 -O3 -pg -Wall -Wextra -g -Wno-sign-compare 
+OBJECTS=vertex.h edge.h goldberg_flow_test.h goldberg_flow.h debug_main.cpp
 
 #test: flow_test
 #	./$<

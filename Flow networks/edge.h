@@ -11,14 +11,15 @@ private:
     int m_flow;
     int m_reverse_flow;
     int m_capacity;
-    bool m_unsaturated_inserted;
+    std::list<Edge*>::iterator m_unsaturated_iterator;
+    int m_unsaturated_placeID;
 
 public:
     Edge() : m_start(nullptr), m_end(nullptr), m_flow(0), 
-            m_reverse_flow(0), m_capacity(0), m_unsaturated_inserted(false) {}
+            m_reverse_flow(0), m_capacity(0), m_unsaturated_placeID(0) {}
     Edge(Vertex *start, Vertex *end, int capacity) : 
         m_start(start), m_end(end), m_flow(0), 
-        m_reverse_flow(0), m_capacity(capacity), m_unsaturated_inserted(false) {}
+        m_reverse_flow(0), m_capacity(capacity), m_unsaturated_placeID(0) {}
 
    Vertex* get_start() const {return m_start;}
    Vertex* get_end() const {return m_end;}

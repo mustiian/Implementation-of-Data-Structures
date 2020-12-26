@@ -1,4 +1,5 @@
 #include "goldberg_flow_test.h"
+#include <deque>
 
 int main()
 {
@@ -9,7 +10,7 @@ int main()
     t.simple_graph_1();
     t.simple_graph_2();
     t.simple_graph_3();
-    t.random_graph(10, 50);
+    //t.random_graph(400, 10);
     t.test_random();
 
     return 0;
