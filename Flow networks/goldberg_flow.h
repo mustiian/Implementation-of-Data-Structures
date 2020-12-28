@@ -15,10 +15,9 @@ using edge_pair = std::pair<int, int>;
 
 struct int_pair_hash {
     std::size_t operator () (const edge_pair &p) const {
-        auto h1 = std::hash<int>{}(p.first);
-        auto h2 = std::hash<int>{}(p.second);
-
-        return h1 ^ h2;  
+        auto h = sizeof(size_t) * 8 / 2;
+        auto a = std::hash<int>{}(p.first);
+        return ((a << h) | (a >> h)) ^ std::hash<int>{}(p.second);  
     }
 };
 
