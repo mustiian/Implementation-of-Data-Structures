@@ -24,9 +24,8 @@ struct int_pair_hash {
 class Goldberg_flow
 {
 public:
-    Goldberg_flow(){}
     Goldberg_flow(int vertices, int source, int target);
-    ~Goldberg_flow();
+    ~Goldberg_flow(){};
     
     void add_edge(int from, int to, int capacity);
     int get_max_flow();
@@ -90,13 +89,9 @@ private:
 Goldberg_flow::Goldberg_flow(int vertices, int source, int target) : 
         m_vertices(vertices + 1), m_excessflow(2 * vertices), m_height_excessflow(0)
 {
+    Vertex::vertex_number = 0;
     m_source = &m_vertices[source];
     m_target = &m_vertices[target];
-}
-
-Goldberg_flow::~Goldberg_flow() 
-{
-    Vertex::vertex_number = 0;
 }
 
 /**
@@ -225,13 +220,12 @@ void Goldberg_flow::init()
             flow = edge->m_capacity;
 
             edge->m_flow += flow;
-            edge->m_reverse_flow -= flow;
             edge->m_end->m_excess_flow += flow; 
             edge->m_start->m_excess_flow -= flow; 
             fix_excessflow(edge->m_end);
 #ifndef NDEBUG
             std::printf("push: from %d to %d flow %d ", m_source->m_ID, edge->m_end->m_ID, flow); 
-            std::printf("| new flow %d, new rev flow %d\t", edge->m_flow, edge->m_reverse_flow);
+            std::printf("| new flow %d\t", edge->m_flow);
             std::printf("| capacity %d\n", edge->m_capacity);
 #endif  
         }
@@ -291,7 +285,6 @@ void Goldberg_flow::push(Vertex* vertex, Edge* edge)
     Vertex* target = edge->get_another_vertex(vertex);
 
     edge->m_flow += actual_flow;
-    edge->m_reverse_flow -= actual_flow;
 
     vertex->m_excess_flow -= flow;
     target->m_excess_flow += flow;

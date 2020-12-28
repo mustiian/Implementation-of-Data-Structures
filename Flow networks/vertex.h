@@ -30,8 +30,8 @@ public:
     int get_excess_flow() const {return m_excess_flow;}
     int get_ID() const {return m_ID;}
 
-    bool operator ==(const Vertex& v)const{ return this->m_ID == v.m_ID; }
-    bool operator !=(const Vertex& v)const{ return this->m_ID != v.m_ID; }
+    bool operator ==(const Vertex& v)const{ return this == &v; }
+    bool operator !=(const Vertex& v)const{ return !(*this == v); }
 };
 
 int Vertex::vertex_number=0;
