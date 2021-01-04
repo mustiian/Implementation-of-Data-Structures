@@ -38,10 +38,10 @@ bool Golberg_flow_tester::is_target_reachable(Goldberg_flow& g) const
         q.pop();
 
         for (const auto edge : g.vertex_neighbours(cur)){
-            if (edge->get_start()->get_ID() != cur)
+            if (g.get_index(edge->get_start()) != cur)
                 continue;
 
-            int neighbor = edge->get_end()->get_ID();
+            int neighbor = g.get_index(edge->get_end());
 
             if (neighbor == target)
                 return true;
@@ -64,9 +64,9 @@ void Golberg_flow_tester::random_graph(int vertices, int max_capacity)
 
     Goldberg_flow g(vertices, start, end);
 
-    for (int i = 1; i <= vertices; i++)
+    for (int i = 0; i < vertices; i++)
     {
-        for (int j = 1; j <= vertices; j++)
+        for (int j = 0; j < vertices; j++)
         {
             if (i == j || g.edge_exists(i, j))
                 continue;
@@ -181,6 +181,8 @@ void Golberg_flow_tester::random_graph_1()
     g.add_edge(8, 3, 41);
     g.add_edge(9, 10, 42);
 
+    g.print_graph();
+
     assert(is_target_reachable(g));
 
     assert(g.get_max_flow() == 129);
@@ -211,7 +213,7 @@ void Goldberg_flow::test_excess_flow()
                 e_flow += edge->get_flow(edge->m_start);
         }
 
-        if (vertex != *m_source){
+        if (&vertex != m_source){
             assert(vertex.get_excess_flow() >= 0);    
             assert(vertex.get_excess_flow() == e_flow);    
         }
@@ -223,9 +225,9 @@ void Goldberg_flow::test_height_limit()
     int limit = m_vertices.size() - 1;
 
     for(const Vertex& vertex : m_vertices){
-        if (vertex == *m_source){
+        if (&vertex == m_source){
             assert(vertex.get_height() == limit);
-        } else if (vertex == *m_target){
+        } else if (&vertex == m_target){
             assert(vertex.get_height() == 0);
         } else {
             assert(vertex.get_height() <= 2*limit);   
@@ -246,8 +248,8 @@ void Goldberg_flow::test_edge(int from, int to, int capacity)
 {
     assert(capacity > 0);
     assert(from != to);
-    assert(from > 0 && from < m_vertices.size());
-    assert(to > 0 && to < m_vertices.size());
+    assert(from >= 0 && from < m_vertices.size());
+    assert(to >= 0 && to < m_vertices.size());
 }
 
 #endif // NDEBUG
