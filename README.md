@@ -1,5 +1,5 @@
 # Implementation of Data Structures
-Assignment that were implemented for the the subject Implementation of Data Structures.
+Assignments that were implemented for the the subject Implementation of Data Structures.
 
 ## Red black tree
 Implementation of the Red–black tree.
